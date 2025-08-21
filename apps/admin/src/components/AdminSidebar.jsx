@@ -65,7 +65,12 @@ export default function AdminSidebar() {
         {/* Admin Info Card */}
         <div className="overflow-hidden mt-4 mb-8">
           <span className="font-semibold text-xl text-white">
-            Welcome, {user.firstName}
+            {user ? (
+              <span>{user.firstName}</span>
+            ) : (
+              <span>Loading user...</span>
+            )}
+
 
           </span>
           {/* <div className="text-md font-medium px-5 py-3">

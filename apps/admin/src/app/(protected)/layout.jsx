@@ -36,8 +36,12 @@ export default function ProtectedLayout({ children }) {
         );
     }
 
-    return <>
-        <AdminHeader />
-        {children}
-    </>;
+    return (
+        <div className="min-h-screen flex flex-col bg-background pt-10">
+            <AdminHeader />
+            <main className="px-2 pb-8 min-h-screen">
+                {children}
+            </main>
+        </div>
+    )
 }
