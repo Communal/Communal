@@ -2,44 +2,38 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useUser } from "../app/api/useUser";
-import { getUser } from "../app/api/user";  // ✅ use your API wrapper
 
 export default function ProtectedRoute({ children }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const [loading, setLoading] = useState(true);
-  const { setUser } = useUser();
+    const router = useRouter();
+    const pathname = usePathname();
+    const [loading, setLoading] = useState(true);
+    const { setUser } = useUser();
 
-  const publicRoutes = ["/login", "/signup"];
+    const publicRoutes = ["/login", "/signup"];
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+    useEffect(() => {
+        const token = localStorage.getItem("token"); // ✅ JWT
+        const storedUser = localStorage.getItem("user") || localStorage.getItem("userStorage");
+        const parsedUser = storedUser ? JSON.parse(storedUser) : null;
 
-    if (!token && !publicRoutes.includes(pathname)) {
-      router.replace("/login");
-      setLoading(false);
-      return;
-    }
-
-    if (token) {
-      (async () => {
-        try {
-          const user = await getUser();  // ✅ fetch full user
-          setUser({ token, ...user });
-        } catch (err) {
-          console.error("Failed to fetch user:", err);
-          localStorage.removeItem("token");
-          router.replace("/login");
-        } finally {
-          setLoading(false);
+        // 🚨 If no token AND no user → redirect (unless on public route)
+        if (!token && !parsedUser && !publicRoutes.includes(pathname)) {
+            router.replace("/login");
+            setLoading(false);
+            return;
         }
-      })();
-    } else {
-      setLoading(false);
-    }
-  }, [pathname, router, setUser]);
 
-  if (loading) return <p>Loading...</p>;
+        // ✅ If user is stored, trust it
+        if (parsedUser?.user) {
+            setUser({ token, ...parsedUser.user });
+        } else if (parsedUser) {
+            setUser({ token, ...parsedUser }); // fallback if structure differs
+        }
 
-  return <>{children}</>;
+        setLoading(false);
+    }, [pathname, router, setUser]);
+
+    if (loading) return <p>Loading...</p>;
+
+    return <>{children}</>;
 }
