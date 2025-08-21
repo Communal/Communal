@@ -15,6 +15,9 @@ export async function GET(request) {
 
     const decoded = verifyToken(token);
 
+    console.log("Token:", token);
+    console.log("Decoded:", decoded);
+
     const user = await User.findById(decoded.id).select("-password");
     if (!user || user.role !== "ADMIN") {
       return NextResponse.json({ user: null }, { status: 403 });
