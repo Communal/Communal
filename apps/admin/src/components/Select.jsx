@@ -65,9 +65,7 @@ export const Select = forwardRef(({
   return (
     <div ref={containerRef} className={cn('relative w-full', className)}>
       {label && (
-        <label className="block font-bold mb-1 text-neutral-400">
-          {label}
-        </label>
+        <label className="block font-bold mb-1 text-neutral-400">{label}</label>
       )}
       <button
         ref={triggerRef}
@@ -82,11 +80,13 @@ export const Select = forwardRef(({
         aria-expanded={open}
         onClick={() => setOpen(o => !o)}
       >
-        <span className={cn(!selected && 'text-gray-400', 'text-white')}>
+        <span className={cn(!selected && 'text-gray-400', 'text-white flex items-center')}>
+          {selected?.icon && <span className="mr-2">{selected.icon}</span>}
           {selected ? selected.label : placeholder}
         </span>
         <ChevronDownIcon className="ml-2 w-4 h-4 text-background" />
       </button>
+
       {open && (
         <ul
           className="absolute z-10 mt-1 w-full bg-foreground border border-neutral-200 rounded-md shadow-lg max-h-60 overflow-auto"
@@ -102,7 +102,7 @@ export const Select = forwardRef(({
               role="option"
               aria-selected={value === opt.value}
               className={cn(
-                'px-4 py-3 cursor-pointer text-background',
+                'px-4 py-3 cursor-pointer text-background flex items-center',
                 value === opt.value && 'bg-primary text-white',
                 highlighted === i && value !== opt.value && 'bg-gray-100',
                 i !== 0 && 'border-t-2 border-white/20',
@@ -115,11 +115,13 @@ export const Select = forwardRef(({
                 setOpen(false);
               }}
             >
+              {opt.icon && <span className="mr-2">{opt.icon}</span>}
               {opt.label}
             </li>
           ))}
         </ul>
       )}
+
       {error && (
         <div className="text-red-500 text-xs mt-1">
           {Array.isArray(error) ? error.join(', ') : error}

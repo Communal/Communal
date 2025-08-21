@@ -6,7 +6,7 @@ import { Trash2, ChevronRight } from "lucide-react"
 import ConfirmModal from "./ConfirmModal"
 import Image from "next/image"
 
-export default function PlatformItem({ id, name, logo, onDelete }) {
+export default function PlatformItem({ id, name, logo, onDelete, route }) {
   const router = useRouter()
   const [showModal, setShowModal] = useState(false)
 
@@ -17,22 +17,24 @@ export default function PlatformItem({ id, name, logo, onDelete }) {
 
   return (
     <>
-      {/* Card with clear visual separation */}
       <div className="flex items-center justify-between bg-white rounded-xl p-4 mb-3 shadow-md border border-gray-200">
-        {/* Left side - orange platform link area */}
+        {/* Left side - platform link area */}
         <div
-          onClick={() => router.push(`/sub-category/${id}`)}
-          className="flex items-center gap-3  cursor-pointer flex-1 group"
+          onClick={() => router.push(`/${route}/${id}`)}
+          className="flex items-center gap-3 cursor-pointer flex-1 group"
         >
-          <div className="p-2 rounded-lg group-hover:bg-orange-200 transition-colors">
-            <Image
-              width={40}
-              height={40}
-              src={logo || "/icons/default-image.png"}
-              alt={name}
-              className="size-8 rounded-full object-cover"
-            />
-          </div>
+          {logo && (
+            <div className="p-2 rounded-lg group-hover:bg-orange-200 transition-colors">
+              <Image
+                width={40}
+                height={40}
+                src={logo}
+                alt={name}
+                className="size-8 rounded-full object-cover"
+              />
+            </div>
+          )}
+
           <div className="flex-1">
             <span className="text-foreground font-semibold group-hover:text-orange-800 transition-colors">
               {name}
@@ -40,9 +42,8 @@ export default function PlatformItem({ id, name, logo, onDelete }) {
           </div>
         </div>
 
-        {/* Right side controls with clear separation */}
+        {/* Right side controls */}
         <div className="flex items-center gap-3 ml-4">
-          {/* Chevron - navigates with orange theme */}
           <div
             onClick={() => router.push(`/sub-category/${id}`)}
             className="p-2 rounded-lg cursor-pointer hover:bg-orange-200 transition-colors group/chevron"
@@ -50,8 +51,7 @@ export default function PlatformItem({ id, name, logo, onDelete }) {
             <ChevronRight className="text-foreground size-5 group-hover/chevron:text-orange-700" />
           </div>
 
-          {/* Delete button - standalone red button */}
-          <div className="h-8 w-px bg-gray-300 mx-1" /> {/* Separator line */}
+          <div className="h-8 w-px bg-gray-300 mx-1" />
 
           <button
             onClick={(e) => {
@@ -66,7 +66,7 @@ export default function PlatformItem({ id, name, logo, onDelete }) {
         </div>
       </div>
 
-      {/* Custom confirmation modal */}
+      {/* Confirmation modal */}
       <ConfirmModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
