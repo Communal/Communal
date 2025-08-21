@@ -64,7 +64,17 @@ export const useUserStore = create(
           const u = await getUser();
 
           if (!u) {
-            set({ error: "User not found", user: null });
+            // fallback: just use decoded JWT if API fails
+            set({
+              user: {
+                id: decoded.id,
+                email: decoded.email,
+                role: decoded.role,
+                token,
+              },
+              userRole: decoded.role,
+              balance: 0,
+            });
             return;
           }
 
@@ -73,9 +83,10 @@ export const useUserStore = create(
             user: {
               ...u,
               _id: u._id || u.id,
+              role: u.role || decoded.role || null, // ✅ fallback to token role
             },
-            userRole: u.role,
-            balance: parseFloat(u.balance?.$numberDecimal || 0),
+            userRole: u.role || decoded.role || null,
+            balance: parseFloat(u.balance?.$numberDecimal || u.balance || 0),
           });
         } catch (err) {
           set({ error: err.message });
@@ -85,15 +96,32 @@ export const useUserStore = create(
       },
 
       // Normalize user when setting manually
-      setUser: (user) =>
+      setUser: (user) => {
+        let role = user?.role || null;
+
+        // ✅ fallback: decode role from token if role is missing
+        if (!role && user?.token) {
+          const decoded = decodeToken(user.token);
+          if (decoded?.role) {
+            role = decoded.role;
+          }
+        }
+
         set({
           user: {
             ...user,
             _id: user._id || user.id,
-            role: user?.role || null,
-            balance: parseFloat(user?.balance?.$numberDecimal || 0),
+            role,
+            balance: parseFloat(
+              user?.balance?.$numberDecimal || user.balance || 0
+            ),
           },
-        }),
+          userRole: role,
+          balance: parseFloat(
+            user?.balance?.$numberDecimal || user.balance || 0
+          ),
+        });
+      },
 
       clearUser: () =>
         set({
