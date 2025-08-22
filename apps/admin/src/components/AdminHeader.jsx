@@ -27,7 +27,7 @@ export default function AdminHeader() {
         <div className="flex-1" />
 
         {/* Admin Info / Login */}
-        {/* {user ? (
+        {user ? (
           <div className="flex items-center gap-4">
             <span className="bg-background text-foreground px-2 py-1 rounded font-medium text-[13px]">
               Admin: {user.firstName}
@@ -40,14 +40,15 @@ export default function AdminHeader() {
           >
             Login
           </Link>
-        )} */}
+        )}
 
         {/* User/Profile Icon */}
-        {user && (
-          <Link href="/admin/profile" className="flex items-center gap-1 text-background">
-            <UserIcon className="size-6" />
-          </Link>
-        )}
+        {/* {user ? (
+          <span>{user.firstName}</span>
+        ) : (
+          <span>Loading user...</span>
+        )} */}
+
       </div>
 
       {/* Search Bar */}
@@ -76,9 +77,8 @@ export default function AdminHeader() {
 
       {/* Sidebar Drawer Content */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-4/5 max-w-xs bg-foreground text-background p-8 flex flex-col justify-between transform transition-transform duration-300 md:hidden ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 left-0 z-50 h-full w-4/5 max-w-xs bg-foreground text-background p-8 flex flex-col justify-between transform transition-transform duration-300 md:hidden ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
         aria-hidden={!sidebarOpen}
       >
         <button

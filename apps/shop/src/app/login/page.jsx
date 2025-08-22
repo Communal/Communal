@@ -1,3 +1,4 @@
+// app/login/page.jsx
 "use client";
 import { Input } from "../../components/Input";
 import Button from "../../components/Button";
@@ -7,7 +8,7 @@ import { handleLogin } from "../api/auth";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import BackHome from "../../components/Home";
-import { useUserStore } from "../../store/userStore"; // ✅ import the store
+import { useUserStore } from "../../store/userStore";
 
 const initialState = {
   email: process.env.NODE_ENV === "development" ? "test@example.com" : "",
@@ -25,7 +26,7 @@ export default function LoginPage() {
   );
 
   const router = useRouter();
-  const setUser = useUserStore((s) => s.setUser); // ✅ get setter
+  const setUser = useUserStore((s) => s.setUser);
 
   useEffect(() => {
     if (state?.success) {
@@ -34,7 +35,7 @@ export default function LoginPage() {
       }
 
       if (state.user) {
-        // Pass the full user object (plus token) to the store so balance is available immediately
+        // ✅ now pass the full user object + token
         setUser({
           ...state.user,
           token: state.token,

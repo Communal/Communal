@@ -7,6 +7,7 @@ export default function ProtectedRoute({ children }) {
     const router = useRouter();
     const pathname = usePathname();
     const [loading, setLoading] = useState(true);
+    const { setUser } = useUser();
 
     // Get state and actions from Zustand store
     const { user, hasHydrated, fetchUser, tokenExpired } = useUserStore();

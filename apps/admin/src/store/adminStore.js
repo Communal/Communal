@@ -8,7 +8,10 @@ export const useAdminStore = create(
       const initializeAdmin = async () => {
         set({ loading: true, error: null });
         try {
-          const res = await fetch("/api/me", { credentials: "include" });
+          const res = await fetch(`${window.location.origin}/api/me`, {
+            method: "GET",
+            credentials: "include",
+          });
 
           if (!res.ok) {
             set({ user: null, loading: false, error: null });

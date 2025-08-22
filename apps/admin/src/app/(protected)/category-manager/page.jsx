@@ -15,7 +15,7 @@ const CategoryManager = () => {
   // Fetch companies from backend
   const fetchCompanies = async () => {
     try {
-      const res = await fetch("/api/admin/company/list");
+      const res = await fetch("/api/company/list");
       const data = await res.json();
       setCompanies(data.companies || []);
     } catch (err) {
@@ -37,7 +37,7 @@ const CategoryManager = () => {
     setLoading(true);
     setMessage("");
     try {
-      const res = await fetch("/api/admin/company/add", {
+      const res = await fetch("/api/company/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, logo }),
@@ -63,7 +63,7 @@ const CategoryManager = () => {
   const handleDeleteCompany = async (id) => {
     setMessage("");
     try {
-      const res = await fetch(`/api/admin/company/remove?id=${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/company/remove?id=${id}`, { method: "DELETE" });
       const data = await res.json();
 
       if (res.ok) {
@@ -109,6 +109,7 @@ const CategoryManager = () => {
             name={company.name}
             logo={company.logo || "/icons/default-image.png"}
             onDelete={handleDeleteCompany}
+            route={`sub-category`}
           />
         ))}
       </div>

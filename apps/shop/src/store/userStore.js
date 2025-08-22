@@ -140,10 +140,36 @@ export const useUserStore = create(
         }
 
         const normalized = normalizeUser(userPayload, tokenRole);
+      // Normalize user when setting manually
+      setUser: (user) => {
+        let role = user?.role || null;
+
+        // ✅ fallback: decode role from token if role is missing
+        if (!role && user?.token) {
+          const decoded = decodeToken(user.token);
+          if (decoded?.role) {
+            role = decoded.role;
+          }
+        }
+
         set({
           user: normalized,
           userRole: normalized.role,
           balance: parseFloat(normalized.balance || "0"),
+        });
+      },
+          user: {
+            ...user,
+            _id: user._id || user.id,
+            role,
+            balance: parseFloat(
+              user?.balance?.$numberDecimal || user.balance || 0
+            ),
+          },
+          userRole: role,
+          balance: parseFloat(
+            user?.balance?.$numberDecimal || user.balance || 0
+          ),
         });
       },
 
@@ -168,10 +194,7 @@ export const useUserStore = create(
         const persistedUser = state?.user;
         if (persistedUser) {
           // Normalize persisted user.balance if needed
-          const normalized = normalizeUser(
-            persistedUser,
-            persistedUser?.role || null
-          );
+          const normalized = normalizeUser(persistedUser, persistedUser?.role || null);
           state?.setState?.({
             user: normalized,
             userRole: normalized.role,
