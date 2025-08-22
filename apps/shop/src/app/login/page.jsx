@@ -34,9 +34,9 @@ export default function LoginPage() {
       }
 
       if (state.user) {
-        // ✅ store only id + token in zustand
+        // Pass the full user object (plus token) to the store so balance is available immediately
         setUser({
-          id: state.user.id,
+          ...state.user,
           token: state.token,
         });
       }
@@ -44,6 +44,7 @@ export default function LoginPage() {
       router.push("/");
     }
   }, [state?.success, state?.token, state?.user, router, setUser]);
+
 
   return (
     <div className="flex flex-col justify-center bg-background px-4 py-8">
