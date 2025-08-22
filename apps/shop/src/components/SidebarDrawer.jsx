@@ -15,12 +15,18 @@ import {
 import Button from "./Button";
 import Link from "next/link";
 import ConfirmDialog from "./DialogBox";
-import { useUser } from "../app/api/useUser";
+import { useUserStore } from "../store/userStore";
 
 export default function SidebarDrawer() {
-  const { user } = useUser();
+  const { user, clearUser } = useUserStore();
   const [open, setOpen] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    clearUser();
+    window.location.href = "/login";
+  };
 
   return (
     <>
@@ -51,12 +57,6 @@ export default function SidebarDrawer() {
         </button>
 
         <div className="space-y-5 flex-1 overflow-y-auto hide-scrollbar">
-          {/* <h2 className="text-2xl font-bold mt-5">
-            {user?.firstName
-              ? `Welcome, ${user.firstName}`
-              : "Please Sign In Below"}
-          </h2> */}
-
           <div className="rounded-xl shadow-md overflow-hidden">
             <div className="flex items-center justify-between mb-2 bg-background-2 p-2">
               <span className="font-semibold text-lg text-foreground">
@@ -67,7 +67,7 @@ export default function SidebarDrawer() {
             </div>
             <div className="text-3xl font-bold px-5 py-1.5">
               {user
-                ? `₦ ${Number(user.balance?.$numberDecimal || 0)}`
+                ? `₦ ${Number(user.balance || 0).toLocaleString()}`
                 : "Please sign in"}
             </div>
             <div className="flex items-center justify-between px-5 py-4">
@@ -188,10 +188,7 @@ export default function SidebarDrawer() {
               },
               {
                 label: "Log Out",
-                onClick: () => {
-                  localStorage.removeItem("token");
-                  window.location.href = "/login";
-                },
+                onClick: handleLogout,
                 variant: "danger",
               },
             ]}
