@@ -1,18 +1,31 @@
 "use client";
+import { useEffect } from "react";
 import Link from "next/link";
 import { useUserStore } from "@/store/userStore";
-import { useUser } from "../../../app/api/useUser";
 import { Input } from "../../../components/Input";
 
 export default function ProfilePage() {
-    const { user, loading, error, fetchUser, userRole, balance } = useUserStore();
+  const { user, loading, error, fetchUser } = useUserStore();
 
-  // const { user, isLoading } = useUser();
+  // Fetch user data if not already loaded
+  useEffect(() => {
+    if (!user && !loading) {
+      fetchUser();
+    }
+  }, [user, loading, fetchUser]);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        Loading...
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Error: {error}
       </div>
     );
   }
@@ -20,7 +33,7 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        No user found
+        No user found. Please log in.
       </div>
     );
   }
@@ -44,15 +57,36 @@ export default function ProfilePage() {
         <h1 className="text-3xl font-bold text-foreground mb-8 text-center">
           Profile
         </h1>
+
+        {/* Display user balance for debugging */}
+        <div className="mb-4 p-3 bg-foreground text-background rounded-lg">
+          <p className="font-bold">Debug Info:</p>
+          <p>Balance from store: {useUserStore.getState().balance}</p>
+          <p>Balance from user object: {user.balance}</p>
+          <p>Email: {user.email}</p>
+        </div>
+
         <form className="w-full max-w-xl flex flex-col gap-4">
-          {/* Username */}
+          {/* First Name */}
           <div>
             <label className="block text-foreground font-bold mb-1 text-lg">
-              Username
+              First Name
             </label>
             <Input
               type="text"
-              defaultValue={user.username}
+              defaultValue={user.firstName || ""}
+              className="bg-[#fffaf0] border-2 border-foreground text-lg rounded-xl px-4 py-3 w-full"
+            />
+          </div>
+
+          {/* Last Name */}
+          <div>
+            <label className="block text-foreground font-bold mb-1 text-lg">
+              Last Name
+            </label>
+            <Input
+              type="text"
+              defaultValue={user.lastName || ""}
               className="bg-[#fffaf0] border-2 border-foreground text-lg rounded-xl px-4 py-3 w-full"
             />
           </div>
@@ -64,7 +98,20 @@ export default function ProfilePage() {
             </label>
             <Input
               type="email"
-              defaultValue={user.email}
+              defaultValue={user.email || ""}
+              className="bg-[#fffaf0] border-2 border-foreground text-lg rounded-xl px-4 py-3 w-full"
+              readOnly
+            />
+          </div>
+
+          {/* Phone */}
+          <div>
+            <label className="block text-foreground font-bold mb-1 text-lg">
+              Phone
+            </label>
+            <Input
+              type="tel"
+              defaultValue={user.phone || ""}
               className="bg-[#fffaf0] border-2 border-foreground text-lg rounded-xl px-4 py-3 w-full"
             />
           </div>
@@ -76,7 +123,6 @@ export default function ProfilePage() {
             </label>
             <Input
               type="password"
-              defaultValue=""
               placeholder="Enter new password"
               className="bg-[#fffaf0] border-2 border-foreground text-lg rounded-xl px-4 py-3 w-full"
             />
@@ -89,7 +135,6 @@ export default function ProfilePage() {
             </label>
             <Input
               type="password"
-              defaultValue=""
               placeholder="Confirm new password"
               className="bg-[#fffaf0] border-2 border-foreground text-lg rounded-xl px-4 py-3 w-full"
             />
@@ -103,8 +148,6 @@ export default function ProfilePage() {
           </button>
         </form>
       </main>
-
-      
     </div>
   );
 }
