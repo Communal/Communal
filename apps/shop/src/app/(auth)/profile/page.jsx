@@ -58,14 +58,6 @@ export default function ProfilePage() {
           Profile
         </h1>
 
-        {/* Display user balance for debugging */}
-        <div className="mb-4 p-3 bg-foreground text-background rounded-lg">
-          <p className="font-bold">Debug Info:</p>
-          <p>Balance from store: {useUserStore.getState().balance}</p>
-          <p>Balance from user object: {user.balance}</p>
-          <p>Email: {user.email}</p>
-        </div>
-
         <form className="w-full max-w-xl flex flex-col gap-4">
           {/* First Name */}
           <div>
