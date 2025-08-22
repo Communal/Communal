@@ -3,11 +3,11 @@ import { useState } from "react";
 import { XIcon, UserIcon, ShoppingCartIcon, SearchIcon } from "lucide-react";
 import Link from "next/link";
 import SidebarDrawer from "./SidebarDrawer";
-import { useUser } from "../app/api/useUser";
+import { useUserStore } from "../store/userStore";
 import { useCartStore } from "../store/cart";
 
 export default function Header() {
-  const { user } = useUser();
+  const { user } = useUserStore();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -27,7 +27,7 @@ export default function Header() {
         {user ? (
           <div className="bg-background text-foreground px-2 py-1 rounded font-medium text-[13px] flex items-center">
             Account Balance: ₦
-            {Number(user.balance?.$numberDecimal || 0).toLocaleString()}
+            {Number(user.balance || 0).toLocaleString()}
           </div>
         ) : (
           <Link
