@@ -12,10 +12,10 @@ function Footer() {
           className='w-6 h-6'
         />
       </div>
-      {/* <div className='mb-2'>
+      <div className='mb-2'>
         <span className='font-semibold'>Email :</span>
         <span className='ml-2'>customer@communlshop.com</span>
-      </div> */}
+      </div>
       <div className='w-full flex justify-end'>
         <Link
           href='/faq'
