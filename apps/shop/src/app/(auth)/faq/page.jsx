@@ -1,7 +1,7 @@
 'use client';
 import * as Accordion from '@radix-ui/react-accordion';
 import { ChevronLeft, Plus } from 'lucide-react';
-import Link from 'next/link';
+import BackHome from '@/components/Home';
 
 const faqs = [
   {
@@ -34,20 +34,14 @@ const faqs = [
 export default function FAQPage() {
   return (
     <div className='min-h-screen bg-[#fffaf0] flex flex-col'>
-      <div className='bg-foreground px-4 pt-4 pb-2'>
-        <div className='flex items-center'>
-          <Link
-            href='/'
-            className='flex items-center bg-[#fffaf0] text-foreground font-bold rounded-xl px-4 py-2 text-lg mb-4'>
-            <ChevronLeft className='mr-2' /> Home
-          </Link>
-        </div>
+      <div className=' px-4 pt-2 pb-2'>
+        <BackHome/>
       </div>
       <main className='flex-1 px-4 py-6 flex flex-col items-center'>
         <h1 className='text-3xl font-bold text-foreground mb-2 text-center'>
           FAQs
         </h1>
-        <p className='text-lg text-foreground text-center mb-6 max-w-2xl'>
+        <p className='text-lg text-foreground text-jus mb-6 max-w-2xl'>
           Communal Shop is committed to delivering exceptional service,
           guaranteeing a safe and successful experience for our customers. Our
           platform empowers users to boost and grow their media presence,
