@@ -2,7 +2,8 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { useUserStore } from "@/store/userStore";
-import { Input } from "../../../components/Input";
+import { Input } from "@/components/Input";
+import BackHome from "@/components/Home";
 
 export default function ProfilePage() {
   const { user, loading, error, fetchUser } = useUserStore();
@@ -39,9 +40,9 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fffaf0] flex flex-col">
+    <div className="min-h-screen w-full bg-[#fffaf0] flex flex-col">
       {/* Header */}
-      <div className="bg-foreground px-4 pt-4 pb-2">
+      {/* <div className="bg- px-4 pt-4 pb-2">
         <div className="flex items-center">
           <Link
             href="/"
@@ -50,15 +51,16 @@ export default function ProfilePage() {
             <span className="mr-2">&#8592;</span> Home
           </Link>
         </div>
-      </div>
+      </div> */}
+      <BackHome/>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center px-2 py-6">
+      <main className="flex-1 flex w-full flex-col items-center px-2 py-6">
         <h1 className="text-3xl font-bold text-foreground mb-8 text-center">
           Profile
         </h1>
 
-        <form className="w-full max-w-xl flex flex-col gap-4">
+        <form className="w-full flex flex-col gap-4">
           {/* First Name */}
           <div>
             <label className="block text-foreground font-bold mb-1 text-lg">
