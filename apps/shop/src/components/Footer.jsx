@@ -14,7 +14,7 @@ function Footer() {
       </div>
       <div className='mb-2'>
         <span className='font-semibold'>Email :</span>
-        <span className='ml-2'>customer@communlshop.com</span>
+        <span className='ml-2'>communalone@gmail.com</span>
       </div>
       <div className='w-full flex justify-end'>
         <Link
