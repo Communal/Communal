@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 
 export async function GET(_req, { params }) {
-  const { id } = params; // category id
+  const { id } = await params; // category id
 
   try {
     if (!id || !mongoose.isValidObjectId(id)) {
