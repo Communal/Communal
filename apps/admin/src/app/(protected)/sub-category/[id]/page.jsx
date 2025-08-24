@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Select } from "@/components/Select";
 import CategoryCard from "@/components/CategoryCard";
@@ -15,9 +15,8 @@ export default function SubCategoryPage() {
   const [loadingCompanies, setLoadingCompanies] = useState(true);
   const [loadingSubCategories, setLoadingSubCategories] = useState(false);
 
-  // Modal state for CategoryCard
-  // const [modalOpen, setModalOpen] = useState(false);
-  // const [subToDelete, setSubToDelete] = useState(null);
+  //Track last fetched company to avoid duplicate fetches
+  const lastFetchedCompany = useRef(null);
 
   // Fetch companies once
   useEffect(() => {
@@ -56,9 +55,13 @@ export default function SubCategoryPage() {
       });
   }, []);
 
-  // Fetch subcategories when selectedCompany changes
+  // Fetch subcategories only when selectedCompany changes
   useEffect(() => {
     if (!selectedCompany) return;
+
+    // ✅ Prevent duplicate fetches
+    if (lastFetchedCompany.current === selectedCompany) return;
+    lastFetchedCompany.current = selectedCompany;
 
     setLoadingSubCategories(true);
 
@@ -150,7 +153,7 @@ export default function SubCategoryPage() {
         </div>
       )}
 
-      {/* Subcategories list using CategoryCard */}
+      {/* Subcategories list */}
       <div className="mt-4">
         {loadingSubCategories ? (
           <p className="text-sm text-muted-foreground mt-2">
