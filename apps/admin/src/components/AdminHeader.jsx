@@ -24,10 +24,10 @@ export default function AdminHeader() {
         <AdminSidebar />
 
         {/* Spacer */}
-        <div className="flex-1" />
+        {/* <div className="flex-1" /> */}
 
         {/* Admin Info / Login */}
-        {user ? (
+        {/* {user ? (
           <div className="flex items-center gap-4">
             <span className="bg-background text-foreground px-2 py-1 rounded font-medium text-[13px]">
               Admin: {user.firstName}
@@ -40,7 +40,9 @@ export default function AdminHeader() {
           >
             Login
           </Link>
-        )}
+        )} */}
+        <p className="text-background text-2xl">Communal One</p>
+        <UserIcon className="text-background"/>
 
         {/* User/Profile Icon */}
         {/* {user ? (
