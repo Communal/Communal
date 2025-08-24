@@ -1,38 +1,36 @@
-// api/product/unsold-counts/route.js
+// app/api/product/counts/route.js
 import dbConnect from "@/config/db";
 import Product from "@/db/schema/Product";
+import { NextResponse } from "next/server";
 
-export default async function handler(req, res) {
-  await dbConnect();
+export async function GET() {
   try {
-    // Aggregate unsold products grouped by category
-    const agg = await Product.aggregate([
-      { $match: { isSold: false } },
-      { $group: { _id: "$category", count: { $sum: 1 } } },
-      // Lookup category metadata (name). Assumes categories collection is "categories".
+    await dbConnect();
+
+    // Aggregate once, no category grouping
+    const result = await Product.aggregate([
       {
-        $lookup: {
-          from: "categories",
-          localField: "_id",
-          foreignField: "_id",
-          as: "category",
-        },
-      },
-      { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } },
-      {
-        $project: {
-          _id: 0,
-          categoryId: "$_id",
-          categoryName: "$category.name",
-          count: 1,
+        $group: {
+          _id: "$isSold",
+          count: { $sum: 1 },
         },
       },
     ]);
 
-    // If you want entries for categories with zero, you'd fetch categories and left-join them.
-    res.status(200).json({ counts: agg });
+    // Convert aggregation result into { sold, unsold }
+    let sold = 0;
+    let unsold = 0;
+    for (const r of result) {
+      if (r._id === true) sold = r.count;
+      else unsold = r.count;
+    }
+
+    return NextResponse.json({ sold, unsold }, { status: 200 });
   } catch (err) {
-    console.error("Failed to aggregate unsold counts:", err);
-    res.status(500).json({ error: "Failed to fetch unsold counts" });
+    console.error("Failed to fetch counts:", err);
+    return NextResponse.json(
+      { error: "Failed to fetch product counts" },
+      { status: 500 }
+    );
   }
 }
