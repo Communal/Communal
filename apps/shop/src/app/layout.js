@@ -31,7 +31,7 @@ export default function RootLayout({ children }) {
           href="/favicon-16x16.png"
         />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/site.webmanifest" />
+        {/* <link rel="manifest" href="/site.webmanifest" /> */}
       </head>
       <body className={`${dmSans.variable} antialiased`}>
         {children}
