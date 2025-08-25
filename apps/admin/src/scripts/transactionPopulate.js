@@ -4,7 +4,7 @@ import User from "../db/schema/User.js";
 
 async function seedTransactions() {
   try {
-    await mongoose.connect("mongodb+srv://communalshop0:OJ22Qnl6tUMpqizW@communal-shop.3pw3tej.mongodb.net/");
+    await mongoose.connect("");
 
     console.log("Connected to MongoDB ✅");
 
