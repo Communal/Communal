@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 export default function DashboardClient({ user }) {
   const [stats, setStats] = useState({ sold: 0, unsold: 0 });
+  const [nonAdminCount, setNonAdminCount] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -23,15 +24,30 @@ export default function DashboardClient({ user }) {
     fetchStats();
   }, []);
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await fetch("/api/users/non-users");
+        if (!res.ok) throw new Error("Failed to fetch users");
+        const data = await res.json();
+        setNonAdminCount(data.nonAdminCount); // match route response
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-bold">Admin Dashboard</h1>
       <p className="text-gray-600">Welcome, {user.firstName}!</p>
 
-      {/* Card component */}
+      {/* Products Overview */}
       <div
         onClick={() => router.push("/companies")}
-        className="cursor-pointer p-6 rounded-2xl shadow-md bg-white border hover:shadow-lg transition"
+        className="cursor-pointer p-3 rounded-xl shadow-md bg-white hover:shadow-lg transition"
       >
         <h2 className="text-lg font-semibold mb-4">Products Overview</h2>
 
@@ -43,11 +59,14 @@ export default function DashboardClient({ user }) {
             Unsold: {stats.unsold}
           </span>
         </div>
-
-        <p className="mt-4 text-xs text-gray-500">
-          Click to see breakdown by company
-        </p>
       </div>
+
+      {/* Users Overview */}
+      <div className="p-3 rounded-xl shadow-md flex items-center space-x-2 bg-white hover:shadow-lg transition">
+        <p className="text-lg font-semibold">Users:</p>
+        <span className="text-lg">{nonAdminCount}</span>
+      </div>
+
     </div>
   );
 }
