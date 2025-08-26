@@ -9,6 +9,7 @@ const TransactionSchema = new mongoose.Schema(
       required: true,
     },
     amount: { type: mongoose.Decimal128, required: true },
+    currency: { type: String, default: "NGN" },
     type: {
       type: String,
       enum: ["CREDIT", "DEBIT"],
@@ -16,14 +17,16 @@ const TransactionSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["SUCCESS", "FAILED"], // Needed for failed transactions
-      default: "SUCCESS",
+      enum: ["PENDING", "SUCCESS", "FAILED"],
+      default: "PENDING",
     },
     description: {
       type: String,
-      enum: ["Wallet in", "Withdrawal"], // Could be expanded
+      enum: ["Wallet in", "Withdrawal"],
       required: true,
     },
+    reference: { type: String, required: true, unique: true },
+    gatewayResponse: { type: Object }, // stores Korapay raw webhook response
   },
   {
     timestamps: { createdAt: true, updatedAt: false },
