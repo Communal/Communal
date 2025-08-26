@@ -66,7 +66,6 @@ export default function ProductPage() {
         console.error("Failed fetching companies:", err);
       })
       .finally(() => setLoadingCompanies(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Fetch categories when company changes
@@ -96,7 +95,7 @@ export default function ProductPage() {
         setSelectedCategory("");
       })
       .finally(() => setLoadingCategories(false));
-  }, [selectedCompany]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [selectedCompany]);
 
   // Fetch products when category changes
   useEffect(() => {
@@ -118,7 +117,7 @@ export default function ProductPage() {
         setProductsCountMap(prev => ({ ...prev, [selectedCategory]: 0 }));
       })
       .finally(() => setLoadingProducts(false));
-  }, [selectedCompany, selectedCategory]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [selectedCompany, selectedCategory]);
 
   const handleCompanyChange = newId => {
     setSelectedCompany(newId);
@@ -130,14 +129,16 @@ export default function ProductPage() {
   };
 
   const handleAdd = async () => {
-    if (!newProduct.name || !selectedCategory || !selectedCompany) return;
+    if (!selectedCategory || !selectedCompany || !newProduct.price) return;
 
     try {
       const res = await fetch("/api/product/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...newProduct,
+          price: newProduct.price,
+          info: newProduct.info,
+          data: newProduct.data,
           company: selectedCompany,
           category: selectedCategory,
         }),
@@ -150,22 +151,19 @@ export default function ProductPage() {
 
       const added = await res.json();
 
-      // API should return the created product. Append it to the current array
       setProductsMap(prev => ({
         ...prev,
         [selectedCategory]: [...(prev[selectedCategory] || []), added],
       }));
 
-      // update count
       setProductsCountMap(prev => ({
         ...prev,
         [selectedCategory]: (prev[selectedCategory] || 0) + 1,
       }));
 
-      setNewProduct({ name: "", price: "", info: "" });
+      setNewProduct({ price: "", info: "", data: "" });
     } catch (err) {
       console.error("Add product error:", err);
-      // Optionally show toast / UI feedback
     }
   };
 
@@ -210,7 +208,7 @@ export default function ProductPage() {
   return (
     <div className="p-4">
       <div className="mb-4">
-        <h1 className="text-xl font-bold mb-2">Select Company</h1>
+        <h1 className="text-xl font-bold mb-2">Select Category</h1>
 
         <Select
           options={companies.map(c => ({
@@ -238,36 +236,40 @@ export default function ProductPage() {
         />
 
         {/* Add product form */}
+        {/* Add product form */}
         {selectedCompany && selectedCategory && (
-          <div className="mt-4 flex gap-2">
-            <input
-              type="text"
-              value={newProduct.name}
-              onChange={e => setNewProduct(prev => ({ ...prev, name: e.target.value }))}
-              placeholder="Product Name"
-              className="border px-3 py-2 rounded w-1/3"
-            />
+          <div className="mt-4 flex flex-col gap-3 max-w-lg">
             <input
               type="number"
               value={newProduct.price}
               onChange={e => setNewProduct(prev => ({ ...prev, price: e.target.value }))}
               placeholder="Price"
-              className="border px-3 py-2 rounded w-1/6"
+              className="border px-3 py-2 rounded"
             />
             <input
               type="text"
               value={newProduct.info}
               onChange={e => setNewProduct(prev => ({ ...prev, info: e.target.value }))}
               placeholder="Info"
-              className="border px-3 py-2 rounded w-1/3"
+              className="border px-3 py-2 rounded"
             />
-            <button onClick={handleAdd} className="bg-orange-500 text-white px-4 py-2 rounded">
-              Add
+            <textarea
+              value={newProduct.data}
+              onChange={e => setNewProduct(prev => ({ ...prev, data: e.target.value }))}
+              placeholder="Data"
+              className="border px-3 py-2 rounded h-32 resize-y"
+            />
+            <button
+              onClick={handleAdd}
+              className="bg-orange-500 text-white px-4 py-2 rounded self-start"
+            >
+              Add Product
             </button>
           </div>
         )}
       </div>
 
+      {/* Products list */}
       {/* Products list */}
       <div className="mt-4">
         {loadingProducts ? (
@@ -280,13 +282,31 @@ export default function ProductPage() {
 
             {currentProducts.length > 0 ? (
               currentProducts.map(p => (
-                <div key={p._id} className="flex justify-between items-center bg-orange-500 text-white px-3 py-2 mb-2 rounded">
-                  <span>
-                    {p.name} - ₦{p.price}
-                    {/* show company or category name if populated */}
-                    {p.company?.name ? <span className="text-sm opacity-80"> · {p.company.name}</span> : null}
-                  </span>
-                  <button onClick={() => confirmDelete(p._id)} className="bg-red-600 px-3 py-1 rounded">Delete</button>
+                <div
+                  key={p._id}
+                  className="flex justify-between items-start bg-orange-500 text-white px-3 py-2 mb-2 rounded"
+                >
+                  <div>
+                    <span className="font-semibold">
+                      {p.name} - ₦{p.price}
+                      {p.company?.name ? (
+                        <span className="text-sm opacity-80"> · {p.company.name}</span>
+                      ) : null}
+                    </span>
+                    {/* show data if available */}
+                    {p.data ? (
+                      <p className="text-sm mt-1 opacity-90 whitespace-pre-line">
+                        {p.data}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <button
+                    onClick={() => confirmDelete(p._id)}
+                    className="bg-red-600 px-3 py-1 rounded"
+                  >
+                    Delete
+                  </button>
                 </div>
               ))
             ) : (
@@ -295,6 +315,7 @@ export default function ProductPage() {
           </>
         )}
       </div>
+
 
       <ConfirmModal
         isOpen={modalOpen}
