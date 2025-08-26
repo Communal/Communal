@@ -46,7 +46,7 @@ export default function DashboardClient({ user }) {
 
       {/* Products Overview */}
       <div
-        onClick={() => router.push("/companies")}
+        onClick={() => router.push("/orders")}
         className="cursor-pointer p-3 rounded-xl shadow-md bg-white hover:shadow-lg transition"
       >
         <h2 className="text-lg font-semibold mb-4">Products Overview</h2>
