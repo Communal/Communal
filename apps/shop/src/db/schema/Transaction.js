@@ -8,6 +8,10 @@ const TransactionSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    reference: {
+      type: String,
+      required: true, // Needed for Korapay/unique tracking
+    },
     amount: { type: mongoose.Decimal128, required: true },
     type: {
       type: String,
@@ -16,12 +20,12 @@ const TransactionSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["SUCCESS", "FAILED"], // Needed for failed transactions
+      enum: ["SUCCESS", "FAILED"],
       default: "SUCCESS",
     },
     description: {
       type: String,
-      enum: ["Wallet in", "Withdrawal"], // Could be expanded
+      enum: ["Wallet in", "Withdrawal"],
       required: true,
     },
   },
