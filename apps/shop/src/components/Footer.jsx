@@ -6,11 +6,14 @@ function Footer() {
       <h2 className='text-2xl font-bold mb-2'>Communal Shop</h2>
       <div className='flex items-center gap-2 mb-2'>
         <span className='font-semibold'>Contact Us :</span>
-        <img
-          src='/img/google-voice8556 1.png'
-          alt='Contact us'
-          className='w-6 h-6'
-        />
+        <a href="https://wa.me/08128572911">
+          <img
+            src='/icons/whatsapp.png'
+            alt='Contact us'
+            className='w-6 h-6'
+
+          />
+        </a>
       </div>
       <div className='mb-2'>
         <span className='font-semibold'>Email :</span>
