@@ -1,11 +1,10 @@
-// api/product/[id]/route.js
 import connectDB from "@/config/db";
 import Product from "@/db/schema/Product";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 
 export async function GET(_req, { params }) {
-  const { id } = await params; // category id
+  const { id } = await params;
 
   try {
     if (!id || !mongoose.isValidObjectId(id)) {
@@ -17,7 +16,7 @@ export async function GET(_req, { params }) {
     // Only return unsold products and include a count
     const products = await Product.find({ category: id, isSold: false })
       .select("_id name price info company category isSold")
-      .populate("company", "name")
+      // .populate("company", "name")
       .populate("category", "name")
       .sort({ name: 1 })
       .lean();
