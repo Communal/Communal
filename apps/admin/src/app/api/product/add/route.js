@@ -2,44 +2,47 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/config/db";
 import Product from "@/db/schema/Product";
+import Category from "@/db/schema/Category";
 
 export async function POST(req) {
   try {
     await dbConnect();
 
     const body = await req.json();
-    const { name, price, info, company, category } = body || {};
+    const { price, info, company, category, data } = body || {};
 
-    if (!name || price === undefined || !company || !category) {
+    if (price === undefined || !company || !category) {
       return NextResponse.json(
-        { error: "All fields required" },
+        { error: "Price, company, and category are required" },
         { status: 400 }
       );
     }
 
-    // Ensure price is number (store schema likely expects Number)
+    // fetch category to get its name
+    const categoryDoc = await Category.findById(category).lean();
+    if (!categoryDoc) {
+      return NextResponse.json({ error: "Invalid category" }, { status: 400 });
+    }
+
     const numericPrice = Number(price);
     if (!Number.isFinite(numericPrice) || numericPrice < 0) {
       return NextResponse.json({ error: "Invalid price" }, { status: 400 });
     }
 
-    // create product with isSold explicitly false
     const created = await Product.create({
-      name,
+      name: categoryDoc.name,   // auto set to category name
       price: numericPrice,
       info: info || "",
+      data: data || "",
       company,
       category,
       isSold: false,
     });
 
-    // Populate company and category names for immediate client use
     const populated = await Product.findById(created._id)
-      // .populate("Company", "name logo")
       .populate("category", "name company")
       .lean();
 
-    // return the populated product object directly (client code expects product)
     return NextResponse.json(populated, { status: 201 });
   } catch (err) {
     console.error("api/product/add error:", err);
