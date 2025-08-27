@@ -1,47 +1,63 @@
-// app/api/wallet/in/route.js
 import { NextResponse } from "next/server";
-import { korapayRequest } from "@/lib/korapay";
-// import { logTransaction } from "@/lib/transactionLogger";
-import { getUserFromToken } from "@/lib/getUserFromToken";
 
 export async function POST(req) {
   try {
-    const { amount, currency } = await req.json();
-    const user = await getUserFromToken();
+    const body = await req.json();
+    const { amount, currency, method } = body;
+    const key = process.env.KORAPAY_SECRET_KEY; // Use secret key
+    console.log(key);
+    
 
-    const payload = {
-      amount,
-      currency: currency || "NGN",
-      redirect_url: "https://your-app.com/payment/callback",
-      payment_reference: `txn_${Date.now()}`,
-      customer: {
-        name: user.name,
-        email: user.email,
-      },
-    };
+    if (!amount || !currency || !method) {
+      return NextResponse.json(
+        { error: "amount, currency, and method are required" },
+        { status: 400 }
+      );
+    }
 
-    const response = await korapayRequest("/charges/initialize", "POST", payload);
+    const response = await fetch(
+      "https://api.korapay.com/merchant/api/v1/charges/initialize",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer sk_test_SWVfHMxRdrHto6FDNKeygNT1Yr1bsFGqUSVipVbP`, // Secret key here
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          reference: `ref_${Date.now()}`,
+          amount,
+          currency,
+          redirect_url: "https://yourdomain.com/payment/success",
+          notification_url:
+            "https://webhook.site/1df69136-48f5-46d4-a8df-3a4d384a6b73",
+          customer: {
+            name: "Test User",
+            email: "test@example.com",
+          },
+          metadata: {
+            method,
+          },
+        }),
+      }
+    );
 
-    // ✅ Log the attempt
-    // await logTransaction({
-    //   userId: user._id,
-    //   reference: payload.payment_reference,
-    //   amount,
-    //   type: "CREDIT",
-    //   status: response.status === "success" ? "SUCCESS" : "FAILED",
-    //   description: "Wallet in",
-    // });
+    console.log(response);
+    
 
-    // ✅ Send checkout_url back
-    return NextResponse.json({
-      checkout_url: response.data.checkout_url,
-      reference: payload.payment_reference,
-    });
+    const data = await response.json();
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: data.message || "Korapay request failed" },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(data);
   } catch (error) {
-    console.error("Wallet In Error:", error);
+    console.error("Error in wallet/in:", error);
     return NextResponse.json(
-      { error: error.message || "Something went wrong" },
-      { status: 400 }
+      { error: "Internal server error" },
+      { status: 500 }
     );
   }
 }

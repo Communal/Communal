@@ -11,30 +11,13 @@ export default function PaymentPage() {
   const [amount, setAmount] = useState("");
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [message, setMessage] = useState("");
-  const { balance, fetchUser, hasHydrated, loading, user } = useUserStore();
+  const [checkoutURL, setCheckoutURL] = useState(null);
+  const { balance, fetchUser, loading } = useUserStore();
 
   const paymentOptions = [
     { value: "card", label: "Credit/Debit Card" },
     { value: "bank", label: "Bank Transfer" },
   ];
-
-  const loadKorapayAndPay = () => {
-    return new Promise((resolve, reject) => {
-      if (window.Korapay) {
-        resolve(window.Korapay);
-        return;
-      }
-
-      const script = document.createElement("script");
-      script.src = "https://checkout.korapay.com/korapay.js";
-      script.async = true;
-
-      script.onload = () => resolve(window.Korapay);
-      script.onerror = () => reject(new Error("Failed to load Korapay SDK"));
-
-      document.body.appendChild(script);
-    });
-  };
 
   const handlePayment = async () => {
     if (!method || !amount) {
@@ -43,37 +26,28 @@ export default function PaymentPage() {
     }
 
     setLoadingPayment(true);
-    setMessage("Opening checkout...");
+    setMessage("Creating payment...");
 
     try {
-      const Korapay = await loadKorapayAndPay();
-
-      Korapay.initialize({
-        key: process.env.NEXT_PUBLIC_KORAPAY_PUBLIC_KEY,
-        reference: `ref_${Date.now()}`,
-        amount: parseFloat(amount),
-        currency: "NGN",
-        customer: {
-          name: user?.name || "Anonymous User",
-          email: user?.email || "test@example.com",
-        },
-        notification_url: `${process.env.NEXT_PUBLIC_API_URL}/api/webhook/korapay`,
-        onClose: () => {
-          setMessage("Payment closed before completion.");
-          setLoadingPayment(false);
-        },
-        onSuccess: () => {
-          setMessage("Payment successful! Updating balance...");
-          fetchUser();
-          setLoadingPayment(false);
-        },
-        onError: (err) => {
-          setMessage("Payment failed: " + (err?.message || "Unknown error"));
-          setLoadingPayment(false);
-        },
+      const res = await fetch("/api/wallet/in", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: parseFloat(amount),
+          currency: "NGN",
+          method,
+        }),
       });
-    } catch (error) {
-      setMessage(error.message);
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || "Payment failed");
+
+      setCheckoutURL(data.data.checkout_url); // Save link for iframe
+      setMessage("");
+    } catch (err) {
+      setMessage(err.message || "Error creating payment");
+    } finally {
       setLoadingPayment(false);
     }
   };
@@ -82,7 +56,7 @@ export default function PaymentPage() {
     <div className="max-w-md mx-auto p-2 space-y-6">
       <BackHome />
 
-      {/* Balance */}
+      {/* Account Balance */}
       <div>
         <div className="bg-gray-200 rounded-t-lg p-3 font-semibold text-orange-500">
           Account Balance
@@ -92,6 +66,7 @@ export default function PaymentPage() {
         </div>
       </div>
 
+      {/* Payment Method */}
       <div>
         <h2 className="mb-2 font-bold text-orange-500">Payment Method</h2>
         <Select
@@ -120,7 +95,7 @@ export default function PaymentPage() {
         </div>
       </div>
 
-      {/* Message */}
+      {/* Status Message */}
       {message && (
         <div
           className={`p-3 rounded-lg text-center ${message.toLowerCase().includes("success")
@@ -132,14 +107,36 @@ export default function PaymentPage() {
         </div>
       )}
 
-      {/* Pay Button */}
+      {/* Make Payment Button */}
       <Button
         onClick={handlePayment}
         disabled={loadingPayment}
         className="w-full bg-orange-500 hover:bg-orange-600 text-white text-lg py-6 rounded-lg"
       >
-        {loadingPayment ? "Opening Checkout..." : "Make Payment"}
+        {loadingPayment ? "Processing..." : "Make Payment"}
       </Button>
+
+      {/* Modal with Iframe */}
+      {checkoutURL && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg w-full max-w-lg h-[80vh] flex flex-col">
+            <div className="flex justify-between items-center p-4 border-b">
+              <h2 className="font-bold text-orange-500">Complete Payment</h2>
+              <button
+                onClick={() => setCheckoutURL(null)}
+                className="text-red-500 font-bold"
+              >
+                ✕
+              </button>
+            </div>
+            <iframe
+              src={checkoutURL}
+              className="flex-1 w-full border-0"
+              title="Payment Checkout"
+            ></iframe>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
