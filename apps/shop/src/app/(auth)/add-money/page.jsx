@@ -12,7 +12,7 @@ export default function PaymentPage() {
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [message, setMessage] = useState("");
   const [checkoutURL, setCheckoutURL] = useState(null);
-  const { balance, fetchUser, loading } = useUserStore();
+  const { balance, fetchUser, loading, user } = useUserStore();
 
   const paymentOptions = [
     { value: "card", label: "Credit/Debit Card" },
@@ -22,6 +22,10 @@ export default function PaymentPage() {
   const handlePayment = async () => {
     if (!method || !amount) {
       setMessage("Please select a payment method and enter an amount.");
+      return;
+    }
+    if (!user?._id) {
+      setMessage("You must be logged in to make a payment.");
       return;
     }
 
@@ -36,11 +40,13 @@ export default function PaymentPage() {
           amount: parseFloat(amount),
           currency: "NGN",
           method,
+          userId: user._id,                // ✅ now always matches backend
+          name: user?.name || "Anonymous", // ✅ safe fallback
+          email: user?.email || "noemail@example.com",
         }),
       });
 
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.error || "Payment failed");
 
       setCheckoutURL(data.data.checkout_url); // Save link for iframe
