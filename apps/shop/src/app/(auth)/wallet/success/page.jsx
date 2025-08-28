@@ -13,7 +13,7 @@ export default function PaymentSuccess() {
   useEffect(() => {
     const verifyPayment = async () => {
       try {
-        const res = await fetch("/api/wallet/verify", {
+        const res = await fetch("/api/payments/korapay/verify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ reference, userId: user?._id }),
@@ -22,7 +22,7 @@ export default function PaymentSuccess() {
         const data = await res.json();
         if (res.ok && data.success) {
           setStatus("✅ Payment successful! Balance updated.");
-          fetchUser(); // Refresh user balance in store
+          fetchUser();
         } else {
           setStatus("❌ " + (data.error || "Payment verification failed"));
         }
