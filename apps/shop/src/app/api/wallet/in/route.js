@@ -27,7 +27,7 @@ export async function POST(req) {
           reference: `ref_${Date.now()}`,
           amount,
           currency,
-          redirect_url: "https://yourdomain.com/payment/success",
+          redirect_url: "http://localhost:3000/wallet/success",
           notification_url:
             "https://webhook.site/1df69136-48f5-46d4-a8df-3a4d384a6b73",
           customer: {
