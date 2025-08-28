@@ -33,15 +33,15 @@ export default function PaymentPage() {
     setMessage("Creating payment...");
 
     try {
-      const res = await fetch("/api/wallet/in", {
+      const res = await fetch("/api/payments/korapay/in", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           amount: parseFloat(amount),
           currency: "NGN",
           method,
-          userId: user._id,                // ✅ now always matches backend
-          name: user?.name || "Anonymous", // ✅ safe fallback
+          userId: user._id,
+          name: user?.name || "Anonymous",
           email: user?.email || "noemail@example.com",
         }),
       });
@@ -49,7 +49,7 @@ export default function PaymentPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Payment failed");
 
-      setCheckoutURL(data.data.checkout_url); // Save link for iframe
+      setCheckoutURL(data.data.checkout_url);
       setMessage("");
     } catch (err) {
       setMessage(err.message || "Error creating payment");
