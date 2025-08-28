@@ -6,7 +6,7 @@ export async function POST(req) {
     const { amount, currency, method } = body;
     const key = process.env.KORAPAY_SECRET_KEY; // Use secret key
     console.log(key);
-    
+
 
     if (!amount || !currency || !method) {
       return NextResponse.json(
@@ -27,7 +27,10 @@ export async function POST(req) {
           reference: `ref_${Date.now()}`,
           amount,
           currency,
-          redirect_url: "http://localhost:3000/wallet/success",
+          redirect_url:
+            process.env.NODE_ENV === "production"
+              ? `${process.env.NEXT_PUBLIC_APP_URL}/wallet/success`
+              : "http://localhost:3000/wallet/success",
           notification_url:
             "https://webhook.site/1df69136-48f5-46d4-a8df-3a4d384a6b73",
           customer: {
@@ -42,7 +45,7 @@ export async function POST(req) {
     );
 
     console.log(response);
-    
+
 
     const data = await response.json();
     if (!response.ok) {
