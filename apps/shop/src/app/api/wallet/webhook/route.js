@@ -1,7 +1,7 @@
 // app/api/wallet/webhook/route.js
 import connectDB from "@/config/db";
-import User from "@/models/User";
-import Transaction from "@/models/Transaction";
+import User from "@/db/schema/User";
+import Transaction from "@/db/schema/Transaction";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 
