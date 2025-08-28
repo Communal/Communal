@@ -35,7 +35,7 @@ export async function POST(req) {
     }
 
     // Convert to integer minor units (kobo)
-    const amountKobo = Math.round(Number(amount) * 100);
+    const amountKobo = Math.round(Number(amount));
     if (!Number.isInteger(amountKobo) || amountKobo <= 0) {
       return NextResponse.json({ error: "Amount must be a positive number" }, { status: 400 });
     }
