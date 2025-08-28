@@ -10,7 +10,8 @@ const TransactionSchema = new mongoose.Schema(
     },
     reference: {
       type: String,
-      required: true, // Needed for Korapay/unique tracking
+      required: true,
+      unique: true,
     },
     amount: { type: mongoose.Decimal128, required: true },
     type: {
