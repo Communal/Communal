@@ -29,14 +29,14 @@ export async function POST(req) {
 
         if (!verifyRes.ok || verifyData.data?.status !== "success") {
             // Log failed transaction
-            await Transaction.create({
-                userId,
-                reference,
-                amount: verifyData?.data?.amount || 0,
-                type: "CREDIT",
-                status: "FAILED",
-                description: "Wallet in",
-            });
+            // await Transaction.create({
+            //     userId,
+            //     reference,
+            //     amount: verifyData?.data?.amount || 0,
+            //     type: "CREDIT",
+            //     status: "FAILED",
+            //     description: "Wallet in",
+            // });
 
             return NextResponse.json(
                 { success: false, error: "Payment not successful" },
@@ -45,21 +45,21 @@ export async function POST(req) {
         }
 
         // ✅ If successful, update user balance
-        const amount = verifyData.data.amount / 100; // usually in kobo
-        const user = await User.findById(userId);
+        // const amount = verifyData.data.amount / 100; // usually in kobo
+        // const user = await User.findById(userId);
 
-        user.balance = parseFloat(user.balance) + amount;
-        await user.save();
+        // user.balance = parseFloat(user.balance) + amount;
+        // await user.save();
 
-        // ✅ Log successful transaction
-        await Transaction.create({
-            userId,
-            reference,
-            amount,
-            type: "CREDIT",
-            status: "SUCCESS",
-            description: "Wallet in",
-        });
+        // // ✅ Log successful transaction
+        // await Transaction.create({
+        //     userId,
+        //     reference,
+        //     amount,
+        //     type: "CREDIT",
+        //     status: "SUCCESS",
+        //     description: "Wallet in",
+        // });
 
         return NextResponse.json({ success: true, message: "Wallet funded" });
     } catch (err) {

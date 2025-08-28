@@ -24,23 +24,16 @@ export async function POST(req) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          reference: `ref_${Date.now()}`,
-          amount,
+          reference: `ref_${Date.now()}_UID_${userId}`,
+          amount: parseFloat(amount) * 100,
           currency,
-          redirect_url:
-            process.env.NODE_ENV === "production"
-              ? `${process.env.NEXT_PUBLIC_APP_URL}/wallet/success`
-              : "http://localhost:3000/wallet/success",
-          notification_url:
-            "https://webhook.site/1df69136-48f5-46d4-a8df-3a4d384a6b73",
-          customer: {
-            name: "Test User",
-            email: "test@example.com",
-          },
-          metadata: {
-            method,
-          },
-        }),
+          redirect_url: process.env.NODE_ENV === "production"
+            ? `${process.env.NEXT_PUBLIC_APP_URL}/wallet/success`
+            : "http://localhost:3000/wallet/success",
+          notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/wallet/webhook`,
+          customer: { name: user.name, email: user.email },
+          metadata: { method },
+        })
       }
     );
 
