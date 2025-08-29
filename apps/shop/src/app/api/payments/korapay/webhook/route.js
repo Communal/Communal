@@ -49,7 +49,7 @@ export async function POST(req) {
             userId: user._id,
             reference,
             amount: mongoose.Types.Decimal128.fromString(
-                (parseFloat(amount) / 100).toString()
+                (parseFloat(amount)).toString()
             ),
             type: "CREDIT",
             status: finalStatus,
@@ -60,7 +60,7 @@ export async function POST(req) {
         // 🔹 Only update balance if payment succeeded
         if (finalStatus === "SUCCESS") {
             const currentBalance = parseFloat(user.balance.toString() || "0");
-            const newBalance = currentBalance + parseFloat(amount) / 100;
+            const newBalance = currentBalance + parseFloat(amount);
 
             user.balance = mongoose.Types.Decimal128.fromString(newBalance.toString());
             await user.save();

@@ -36,7 +36,7 @@ export async function POST(req) {
                 userId,
                 reference,
                 amount: verifyData?.data?.amount
-                    ? parseFloat(verifyData.data.amount) / 100
+                    ? parseFloat(verifyData.data.amount)
                     : 0,
                 type: "CREDIT",
                 status: "FAILED",
@@ -50,7 +50,7 @@ export async function POST(req) {
         }
 
         // ✅ Amount (Korapay returns in kobo)
-        const amount = parseFloat(verifyData.data.amount) / 100;
+        const amount = parseFloat(verifyData.data.amount);
 
         // ✅ Update user balance safely
         const user = await User.findById(userId);
