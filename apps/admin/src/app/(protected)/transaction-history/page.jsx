@@ -11,7 +11,7 @@ export default function AdminTransactionsPage() {
 
   const fetchData = async (page = 1) => {
     try {
-      const res = await fetch(`/api/transactions?page=${page}&limit=10`);
+      const res = await fetch(`/api/transactions?page=${page}&limit=20`);
       if (!res.ok) throw new Error("Failed to fetch transactions");
       const json = await res.json();
       setData(json);
