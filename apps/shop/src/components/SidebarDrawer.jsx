@@ -44,7 +44,7 @@ export default function SidebarDrawer() {
 
       {/* Sidebar Drawer */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-full sm:w-4/5 max-w-xs bg-foreground pb-10 text-background p-4 flex flex-col transition-transform duration-300 md:hidden ${open ? "translate-x-0" : "-translate-x-full"
+        className={`fixed top-0 left-0 z-50 h-full w-full sm:w-4/5 max-w-xs bg-foreground pb-10 text-background p-4 flex flex-col transition-transform duration-300 ${open ? "translate-x-0" : "-translate-x-full"
           }`}
         aria-hidden={!open}
       >
