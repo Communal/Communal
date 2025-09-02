@@ -1,18 +1,15 @@
 import mongoose from "mongoose";
 
 const ProductSchema = new mongoose.Schema({
-  _id: { type: mongoose.Schema.Types.ObjectId, auto: true }, // Explicit _id
-  name: { type: String, required: true },
+  name: { type: String, required: true, index: true },
   price: { type: Number, required: true },
   info: { type: String, maxlength: 500 },
-  category: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Category",
-    required: true,
-  },
+  category: { type: mongoose.Schema.Types.ObjectId, ref: "Category", required: true, index: true },
   data: { type: String },
-  isSold: { type: Boolean, default: false },
-});
+  isSold: { type: Boolean, default: false, index: true },
+}, { timestamps: false });
 
-export default mongoose.models.Product ||
-  mongoose.model("Product", ProductSchema);
+// Compound index for improved filtering
+ProductSchema.index({ category: 1, price: 1 });
+
+export default mongoose.models.Product || mongoose.model("Product", ProductSchema);
