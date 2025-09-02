@@ -15,8 +15,9 @@ export default function PaymentPage() {
   const { balance, fetchUser, loading, user } = useUserStore();
 
   const paymentOptions = [
-    { value: "card", label: "Credit/Debit Card" },
-    { value: "bank", label: "Bank Transfer" },
+    { value: "korapay-card", label: "Korapay - Card" },
+    { value: "korapay-bank", label: "Korapay - Bank Transfer" },
+    { value: "cryptomus", label: "Cryptomus - USDT" },
   ];
 
   const handlePayment = async () => {
@@ -33,23 +34,45 @@ export default function PaymentPage() {
     setMessage("Creating payment...");
 
     try {
-      const res = await fetch("/api/payments/korapay/in", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      let url = "";
+      let body = {};
+
+      if (method.startsWith("korapay")) {
+        url = "/api/payments/korapay/in";
+        body = {
           amount: parseFloat(amount),
           currency: "NGN",
           method,
           userId: user._id,
           name: user?.name || "Anonymous",
           email: user?.email || "noemail@example.com",
-        }),
+        };
+      } else if (method === "cryptomus") {
+        url = "/api/payments/cryptomus/in";
+        body = {
+          amount: parseFloat(amount),
+          currency: "USDT",
+          userId: user._id,
+          orderId: `user_${user._id}_${Date.now()}`,
+        };
+      }
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Payment failed");
 
-      setCheckoutURL(data.data.checkout_url);
+      // Korapay returns checkout_url, Cryptomus returns result.url
+      const checkout =
+        data.data?.checkout_url || data.result?.url || null;
+
+      if (!checkout) throw new Error("No checkout URL returned");
+
+      setCheckoutURL(checkout);
       setMessage("");
     } catch (err) {
       setMessage(err.message || "Error creating payment");
