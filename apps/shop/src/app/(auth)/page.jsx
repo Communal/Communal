@@ -53,7 +53,8 @@ export default function Home() {
           companies.map(c => (
             <Link
               key={c._id}
-              href={`/category/${c._id}`}
+              href={'/'}
+              // href={`/category/${c._id}`}
               className="flex items-center justify-between gap-2 bg-foreground text-background transition p-3 border border-neutral-200 shadow-sm"
             >
               <div className="flex items-center gap-2">
