@@ -2,7 +2,7 @@ import { DM_Sans } from 'next/font/google';
 import '../globals.css';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import ProtectedRoutes from "@/components/ProtectedRoutes"
+import ProtectedRoutes from "@/components/ProtectedRoutes";
 
 const dmSans = DM_Sans({
   weight: ['400', '500', '600', '700'],
@@ -10,12 +10,18 @@ const dmSans = DM_Sans({
   subsets: ['latin'],
 });
 
+export const metadata = {
+  title: "Communal Shop",
+  description: "Shop together, save together. Join our community and enjoy exclusive deals!",
+  other: {
+    cryptomus: "95a96952", // 👈 this generates <meta name="cryptomus" content="95a96952" />
+  },
+};
+
 export default function AuthLayout({ children }) {
   return (
     <ProtectedRoutes>
-      <div
-        className={`min-h-screen flex flex-col bg-background pt-32 ${dmSans.variable}`}
-      >
+      <div className={`min-h-screen flex flex-col bg-background pt-32 ${dmSans.variable}`}>
         <Header />
         <div className="flex flex-1">
           <aside className="hidden md:flex flex-col justify-between w-1/4 bg-foreground text-background p-12">
@@ -24,8 +30,7 @@ export default function AuthLayout({ children }) {
                 Welcome to Communal Shop
               </h2>
               <p className="text-lg">
-                Shop together, save together. Join our community and enjoy
-                exclusive deals!
+                Shop together, save together. Join our community and enjoy exclusive deals!
               </p>
             </div>
             <div className="text-sm opacity-70">
