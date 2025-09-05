@@ -1,6 +1,6 @@
 // lib/transactionLogger.js
 import connectDB from "@/config/db";
-import Transaction from "@/models/Transaction";
+import Transaction from "@/db/schema/Transaction";
 
 export async function logTransaction({
   userId,
