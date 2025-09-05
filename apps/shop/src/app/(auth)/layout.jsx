@@ -14,7 +14,7 @@ export const metadata = {
   title: "Communal Shop",
   description: "Shop together, save together. Join our community and enjoy exclusive deals!",
   other: {
-    cryptomus: "95a96952", // 👈 this generates <meta name="cryptomus" content="95a96952" />
+    cryptomus: "95a96952",
   },
 };
 
