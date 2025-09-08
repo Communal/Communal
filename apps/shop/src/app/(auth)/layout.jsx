@@ -20,7 +20,7 @@ export const metadata = {
 
 export default function AuthLayout({ children }) {
   return (
-    <ProtectedRoutes>
+    // <ProtectedRoutes>
       <div className={`min-h-screen flex flex-col bg-background pt-32 ${dmSans.variable}`}>
         <Header />
         <div className="flex flex-1">
@@ -43,6 +43,6 @@ export default function AuthLayout({ children }) {
         </div>
         <Footer />
       </div>
-    </ProtectedRoutes>
+    // </ProtectedRoutes>
   );
 }
