@@ -48,7 +48,7 @@ export default function Home() {
         </div>
 
         {loading ? (
-          <p className="px-4 py-3">Loading companies...</p>
+          <p className="px-4 py-3">Loading categories...</p>
         ) : companies.length > 0 ? (
           companies.map(c => (
             <Link
@@ -74,7 +74,7 @@ export default function Home() {
             </Link>
           ))
         ) : (
-          <p className="px-4 py-3">No companies found.</p>
+          <p className="px-4 py-3">No categories found.</p>
         )}
       </div>
     </main>
