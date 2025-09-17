@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 const CHANNEL_MAP = {
   card: "card",
-  bank: "bank_transfer",        // your UI uses "bank"; Korapay expects "bank_transfer"
+  bank: "bank_transfer",
   pay_with_bank: "pay_with_bank",
   mobile_money: "mobile_money",
 };
@@ -34,17 +34,14 @@ export async function POST(req) {
       return NextResponse.json({ error: "currency is required" }, { status: 400 });
     }
 
-    // Convert to integer minor units (kobo)
     const amountKobo = Math.round(Number(amount));
     if (!Number.isInteger(amountKobo) || amountKobo <= 0) {
       return NextResponse.json({ error: "Amount must be a positive number" }, { status: 400 });
     }
 
-    // Map method -> Korapay channel
     const defaultChannel = CHANNEL_MAP[method] || undefined;
     const channels = defaultChannel ? [defaultChannel] : undefined;
 
-    // Build redirect URL (fallback to request origin in dev)
     const reqUrl = new URL(req.url);
     const origin = process.env.NEXT_PUBLIC_APP_URL || `${reqUrl.protocol}//${reqUrl.host}`;
     const redirect_url =
@@ -52,7 +49,6 @@ export async function POST(req) {
         ? `${origin}/wallet/success`
         : `${origin}/wallet/success`;
 
-    // Only include notification_url when we actually have a valid public URL
     const notification_url = origin?.startsWith("http")
       ? `${origin}/api/wallet/webhook`
       : undefined;
@@ -66,7 +62,6 @@ export async function POST(req) {
       );
     }
 
-    // Build payload and only include optional fields when present
     const payload = {
       reference: `ref_${Date.now()}_UID_${userId}`,
       amount: amountKobo,
@@ -94,14 +89,13 @@ export async function POST(req) {
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok || data?.status === false) {
-      // Bubble up Korapay’s validation details if present
       return NextResponse.json(
         {
           error:
             data?.message ||
             data?.error ||
             "Korapay request failed",
-          details: data?.data || data, // often where field-level errors live
+          details: data?.data || data,
         },
         { status: 400 }
       );
