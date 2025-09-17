@@ -5,7 +5,7 @@ import { Select } from '@/components/Select';
 import Button from '@/components/Button';
 import { useUserStore } from '@/store/userStore';
 import BackHome from '@/components/Home';
-import { useSquad } from '../../api/payments/squad/client';
+import { useSquad } from '@/hooks/useSquad'; // <-- frontend hook
 import Script from 'next/script';
 import { useRouter } from 'next/navigation';
 
@@ -39,58 +39,92 @@ export default function PaymentPage() {
     setMessage('Creating payment...');
 
     try {
-      let url = '';
-      let body = {};
+      if (method === 'squad') {
+        // Create transaction on the server first (PENDING)
+        const res = await fetch('/api/payments/squad/in', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user._id,
+            amount: parseFloat(amount), // NGN as float, server will return kobo
+            email: user.email,
+            customer_name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+            description: 'Wallet in',
+          }),
+        });
 
-      if (method.includes('squad')) {
+        const json = await res.json();
+        if (!res.ok || !json?.status) {
+          throw new Error(json?.message || 'Failed to create transaction');
+        }
+
+        const { transaction_ref, amount_kobo, publicKey } = json.data;
+        // Open Squad widget via your frontend hook
         squad({
-          amount: Number(amount) * 100,
+          amount: amount_kobo,
           email: user.email,
-          transaction_ref: `user_${user._id}_${Date.now()}`,
-          customer_name: `${user.firstName} ${user.lastName}`,
-          callbackUrl: location.href,
-          onClose: () => { },
-          onSuccess: () => {
-            alert('Transaction Successful');
+          transaction_ref,
+          customer_name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+          callbackUrl: window.location.href,
+          onLoad: () => {
+            setMessage('');
+            setLoadingPayment(false);
+          },
+          onClose: () => {
+            // modal closed by user
+            setMessage('Payment modal closed.');
+            setLoadingPayment(false);
+          },
+          onSuccess: (payload) => {
+            // Squad SDK onSuccess (note: final verification happens in webhook)
+            setMessage('Transaction successful (awaiting verification).');
+            // Optionally redirect or refresh balance; webhook will update DB
+            // You might want to re-fetch the user's balance from server after a short delay
+            // For now, go home:
             router.replace('/');
           },
         });
+
         return;
-      } else if (method === 'cryptomus') {
-        url = '/api/payments/cryptomus/in';
-        body = {
+      }
+
+      // Cryptomus / other flows
+      if (method === 'cryptomus') {
+        const url = '/api/payments/cryptomus/in';
+        const body = {
           amount: parseFloat(amount),
           currency: 'USDT',
           userId: user._id,
           orderId: `user_${user._id}_${Date.now()}`,
         };
+
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || data.message || 'Payment failed');
+
+        // provider returns checkout URL differently depending on provider
+        const checkout = data.data?.checkout_url || data.result?.url || null;
+        if (!checkout) throw new Error('No checkout URL returned');
+        setCheckoutURL(checkout);
+        setMessage('');
       }
-
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Payment failed');
-
-      // Korapay returns checkout_url, Cryptomus returns result.url
-      const checkout = data.data?.checkout_url || data.result?.url || null;
-
-      if (!checkout) throw new Error('No checkout URL returned');
-
-      setCheckoutURL(checkout);
-      setMessage('');
     } catch (err) {
       setMessage(err.message || 'Error creating payment');
-    } finally {
       setLoadingPayment(false);
+    } finally {
+      // if Squad flow was started we already returned above so this is for other flows or failures
+      if (method !== 'squad') setLoadingPayment(false);
     }
   };
 
   return (
     <div className='max-w-md mx-auto p-2 space-y-6'>
+      {/* Squad widget script */}
       <Script
         src='https://checkout.squadco.com/widget/squad.min.js'
         strategy='lazyOnload'
@@ -103,7 +137,7 @@ export default function PaymentPage() {
           Account Balance
         </div>
         <div className='bg-orange-500 text-white text-3xl font-bold p-4 rounded-b-lg'>
-          {loading ? 'Loading...' : `₦${balance.toLocaleString()}`}
+          {loading ? 'Loading...' : `₦${Number(balance || 0).toLocaleString()}`}
         </div>
       </div>
 
@@ -155,7 +189,7 @@ export default function PaymentPage() {
         {loadingPayment ? 'Processing...' : 'Make Payment'}
       </Button>
 
-      {/* Modal with Iframe */}
+      {/* Modal with Iframe (e.g., for Cryptomus) */}
       {checkoutURL && (
         <div className='fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50'>
           <div className='bg-white rounded-lg w-full max-w-lg h-[80vh] flex flex-col'>
