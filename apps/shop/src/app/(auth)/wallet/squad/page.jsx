@@ -6,9 +6,11 @@ export default function VerifyPage() {
     const [status, setStatus] = useState("Verifying payment...");
     const router = useRouter();
     const searchParams = useSearchParams();
-    const reference = searchParams.get("reference");
+    const reference = searchParams?.get("reference");
 
     useEffect(() => {
+        if (!reference) return;
+
         const verifyPayment = async () => {
             try {
                 const res = await fetch("/api/payments/squad/verify", {
