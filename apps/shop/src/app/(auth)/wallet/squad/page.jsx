@@ -1,16 +1,19 @@
 "use client";
-export const dynamic = "force-dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function VerifyPage() {
+function VerifyContent() {
     const [status, setStatus] = useState("Verifying payment...");
     const router = useRouter();
     const searchParams = useSearchParams();
     const reference = searchParams?.get("reference");
 
     useEffect(() => {
-        if (!reference) return;
+        if (!reference) {
+            setStatus("No transaction reference provided");
+            setTimeout(() => router.replace("/"), 5000);
+            return;
+        }
 
         const verifyPayment = async () => {
             try {
@@ -35,12 +38,7 @@ export default function VerifyPage() {
             }
         };
 
-        if (reference) {
-            verifyPayment();
-        } else {
-            setStatus("No transaction reference provided ❌");
-            setTimeout(() => router.replace("/"), 5000);
-        }
+        verifyPayment();
     }, [reference, router]);
 
     return (
@@ -48,5 +46,13 @@ export default function VerifyPage() {
             <h1 className="text-xl font-bold text-orange-600">{status}</h1>
             <p className="mt-2 text-gray-500 text-sm">You will be redirected shortly...</p>
         </div>
+    );
+}
+
+export default function VerifyPage() {
+    return (
+        <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
+            <VerifyContent />
+        </Suspense>
     );
 }
