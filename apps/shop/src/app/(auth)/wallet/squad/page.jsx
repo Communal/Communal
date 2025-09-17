@@ -1,10 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default function VerifyPage({ searchParams }) {
+export default function VerifyPage() {
     const [status, setStatus] = useState("Verifying payment...");
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const reference = searchParams.get("reference");
 
     useEffect(() => {
         const verifyPayment = async () => {
@@ -12,17 +14,17 @@ export default function VerifyPage({ searchParams }) {
                 const res = await fetch("/api/payments/squad/verify", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ transaction_ref: searchParams?.reference }),
+                    body: JSON.stringify({ transaction_ref: reference }),
                 });
 
                 const data = await res.json();
 
                 if (res.ok) {
                     setStatus(data.message || "Payment verified successfully ✅");
-                    setTimeout(() => router.replace("/"), 3000); // Redirect after 3s
+                    setTimeout(() => router.replace("/"), 3000);
                 } else {
                     setStatus(data.error || "Verification failed ❌");
-                    setTimeout(() => router.replace("/"), 5000); // Redirect after 5s
+                    setTimeout(() => router.replace("/"), 5000);
                 }
             } catch (err) {
                 setStatus("An error occurred ❌");
@@ -30,13 +32,13 @@ export default function VerifyPage({ searchParams }) {
             }
         };
 
-        if (searchParams?.reference) {
+        if (reference) {
             verifyPayment();
         } else {
             setStatus("No transaction reference provided ❌");
             setTimeout(() => router.replace("/"), 5000);
         }
-    }, [searchParams, router]);
+    }, [reference, router]);
 
     return (
         <div className="flex flex-col items-center justify-center h-screen text-center">
