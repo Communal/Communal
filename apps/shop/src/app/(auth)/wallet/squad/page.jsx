@@ -1,0 +1,47 @@
+"use client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+export default function VerifyPage({ searchParams }) {
+    const [status, setStatus] = useState("Verifying payment...");
+    const router = useRouter();
+
+    useEffect(() => {
+        const verifyPayment = async () => {
+            try {
+                const res = await fetch("/api/payments/squad/verify", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ transaction_ref: searchParams?.reference }),
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    setStatus(data.message || "Payment verified successfully ✅");
+                    setTimeout(() => router.replace("/"), 3000); // Redirect after 3s
+                } else {
+                    setStatus(data.error || "Verification failed ❌");
+                    setTimeout(() => router.replace("/"), 5000); // Redirect after 5s
+                }
+            } catch (err) {
+                setStatus("An error occurred ❌");
+                setTimeout(() => router.replace("/"), 5000);
+            }
+        };
+
+        if (searchParams?.reference) {
+            verifyPayment();
+        } else {
+            setStatus("No transaction reference provided ❌");
+            setTimeout(() => router.replace("/"), 5000);
+        }
+    }, [searchParams, router]);
+
+    return (
+        <div className="flex flex-col items-center justify-center h-screen text-center">
+            <h1 className="text-xl font-bold text-orange-600">{status}</h1>
+            <p className="mt-2 text-gray-500 text-sm">You will be redirected shortly...</p>
+        </div>
+    );
+}
