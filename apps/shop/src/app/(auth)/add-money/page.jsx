@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Select } from '@/components/Select';
 import Button from '@/components/Button';
 import { useUserStore } from '@/store/userStore';
 import BackHome from '@/components/Home';
-import { useSquad } from '@/hooks/useSquad'; // <-- frontend hook
+import { useSquad } from '@/hooks/useSquad';
 import Script from 'next/script';
 import { useRouter } from 'next/navigation';
 
@@ -16,14 +16,54 @@ export default function PaymentPage() {
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [message, setMessage] = useState('');
   const [checkoutURL, setCheckoutURL] = useState(null);
+
+  const [payCurrency, setPayCurrency] = useState('');
+  const [nowPaymentsCurrencies, setNowPaymentsCurrencies] = useState([]); // <-- fetched list
+
   const { balance, loading, user } = useUserStore();
+  const squad = useSquad();
 
   const paymentOptions = [
     { value: 'squad', label: 'Squad - Card, Bank Transfer' },
     { value: 'cryptomus', label: 'Cryptomus - USDT' },
+    { value: 'nowpayments', label: 'NOWPayments - Crypto' },
   ];
 
-  const squad = useSquad();
+  // 🔹 Fetch currencies dynamically from backend
+  useEffect(() => {
+    if (method === 'nowpayments') {
+      const fetchCurrencies = async () => {
+        try {
+          const res = await fetch('/api/payments/nowPayments/listCurrencies');
+          const data = await res.json();
+
+          console.log('NOWPayments currencies response:', data);
+
+          if (!res.ok) throw new Error(data.error || 'Failed to fetch currencies');
+
+          const list = data?.selectedCurrencies || [];
+          if (list.length === 0) {
+            setMessage('No currencies available from NOWPayments.');
+          }
+
+          const options = list.map((cur) => ({
+            value: cur,
+            label: cur,
+          }));
+
+          setNowPaymentsCurrencies(options);
+        } catch (err) {
+          console.error(err);
+          setMessage(err.message || 'Error loading currencies');
+          setNowPaymentsCurrencies([]);
+        }
+      };
+
+      fetchCurrencies();
+    }
+  }, [method]);
+
+
 
   const handlePayment = async () => {
     if (!method || !amount) {
@@ -40,13 +80,12 @@ export default function PaymentPage() {
 
     try {
       if (method === 'squad') {
-        // Create transaction on the server first (PENDING)
         const res = await fetch('/api/payments/squad/in', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             userId: user._id,
-            amount: parseFloat(amount), // NGN as float, server will return kobo
+            amount: parseFloat(amount),
             email: user.email,
             customer_name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
             description: 'Wallet in',
@@ -54,12 +93,10 @@ export default function PaymentPage() {
         });
 
         const json = await res.json();
-        if (!res.ok || !json?.status) {
-          throw new Error(json?.message || 'Failed to create transaction');
-        }
+        if (!res.ok || !json?.status) throw new Error(json?.message || 'Failed');
 
-        const { transaction_ref, amount_kobo, publicKey } = json.data;
-        // Open Squad widget via your frontend hook
+        const { transaction_ref, amount_kobo } = json.data;
+
         squad({
           amount: amount_kobo,
           email: user.email,
@@ -71,101 +108,127 @@ export default function PaymentPage() {
             setLoadingPayment(false);
           },
           onClose: () => {
-            // modal closed by user
             setMessage('Payment modal closed.');
             setLoadingPayment(false);
           },
-          onSuccess: (payload) => {
-            // Squad SDK onSuccess (note: final verification happens in webhook)
+          onSuccess: () => {
             setMessage('Transaction successful (awaiting verification).');
-            // Optionally redirect or refresh balance; webhook will update DB
-            // You might want to re-fetch the user's balance from server after a short delay
-            // For now, go home:
             router.replace('/');
           },
         });
-
         return;
       }
 
-      // Cryptomus / other flows
       if (method === 'cryptomus') {
-        const url = '/api/payments/cryptomus/in';
-        const body = {
-          amount: parseFloat(amount),
-          currency: 'USDT',
-          userId: user._id,
-          orderId: `user_${user._id}_${Date.now()}`,
-        };
-
-        const res = await fetch(url, {
+        const res = await fetch('/api/payments/cryptomus/in', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
+          body: JSON.stringify({
+            userId: user._id,
+            amount: parseFloat(amount),
+            currency: 'USDT',
+            orderId: `user_${user._id}_${Date.now()}`,
+          }),
         });
 
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || data.message || 'Payment failed');
 
-        // provider returns checkout URL differently depending on provider
         const checkout = data.data?.checkout_url || data.result?.url || null;
         if (!checkout) throw new Error('No checkout URL returned');
         setCheckoutURL(checkout);
         setMessage('');
+        return;
+      }
+
+      if (method === 'nowpayments') {
+        // if (!payCurrency) {
+        //   setMessage('Please select a crypto currency.');
+        //   setLoadingPayment(false);
+        //   return;
+        // }
+
+        const res = await fetch('/api/payments/nowPayments/in', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user._id,
+            amount: parseFloat(amount),
+            pay_currency: "usd",
+            description: 'Wallet in',
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || data.message || 'Payment failed');
+
+        const checkout = data.invoice?.invoice_url || null;
+        if (!checkout) throw new Error('No invoice URL returned');
+
+        setCheckoutURL(checkout);
+        setMessage('');
+        return;
       }
     } catch (err) {
       setMessage(err.message || 'Error creating payment');
       setLoadingPayment(false);
     } finally {
-      // if Squad flow was started we already returned above so this is for other flows or failures
       if (method !== 'squad') setLoadingPayment(false);
     }
   };
 
   return (
-    <div className='max-w-md mx-auto p-2 space-y-6'>
-      {/* Squad widget script */}
-      <Script
-        src='https://checkout.squadco.com/widget/squad.min.js'
-        strategy='lazyOnload'
-      />
+    <div className="max-w-md mx-auto p-2 space-y-6">
+      <Script src="https://checkout.squadco.com/widget/squad.min.js" strategy="lazyOnload" />
       <BackHome />
 
       {/* Account Balance */}
       <div>
-        <div className='bg-gray-200 rounded-t-lg p-3 font-semibold text-orange-500'>
+        <div className="bg-gray-200 rounded-t-lg p-3 font-semibold text-orange-500">
           Account Balance
         </div>
-        <div className='bg-orange-500 text-white text-3xl font-bold p-4 rounded-b-lg'>
+        <div className="bg-orange-500 text-white text-3xl font-bold p-4 rounded-b-lg">
           {loading ? 'Loading...' : `₦${Number(balance || 0).toLocaleString()}`}
         </div>
       </div>
 
       {/* Payment Method */}
       <div>
-        <h2 className='mb-2 font-bold text-orange-500'>Payment Method</h2>
+        <h2 className="mb-2 font-bold text-orange-500">Payment Method</h2>
         <Select
           options={paymentOptions}
           value={method}
           onChange={(value) => setMethod(value)}
-          placeholder='Click here to select payment method'
-          className='bg-gray-200 rounded-lg'
+          placeholder="Click here to select payment method"
+          className="bg-gray-200 rounded-lg"
         />
       </div>
 
+      {/* Crypto Currency (only for NOWPayments) */}
+      {/* {method === 'nowpayments' && (
+        <div>
+          <h2 className="mb-2 font-bold text-orange-500">Pay with Crypto:</h2>
+          <Select
+            options={nowPaymentsCurrencies}
+            value={payCurrency}
+            onChange={setPayCurrency}
+            placeholder="Select crypto currency"
+            className="bg-gray-200 rounded-lg"
+          />
+        </div>
+      )} */}
+
       {/* Amount */}
       <div>
-        <h2 className='mb-2 font-bold text-orange-500'>Enter Amount</h2>
-        <div className='flex border-2 border-orange-500 rounded-lg overflow-hidden'>
-          <span className='bg-white flex items-center px-3 text-orange-500 font-bold'>
-            ₦
-          </span>
+        <h2 className="mb-2 font-bold text-orange-500">Enter Amount</h2>
+        <div className="flex border-2 border-orange-500 rounded-lg overflow-hidden">
+          <span className="bg-white flex items-center px-3 text-orange-500 font-bold">₦</span>
           <input
-            type='number'
+            type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            placeholder='Enter amount to deposit'
-            className='flex-1 p-3 outline-none'
+            placeholder="Enter amount to deposit"
+            className="flex-1 p-3 outline-none"
           />
         </div>
       </div>
@@ -174,9 +237,10 @@ export default function PaymentPage() {
       {message && (
         <div
           className={`p-3 rounded-lg text-center ${message.toLowerCase().includes('success')
-              ? 'bg-green-100 text-green-700'
-              : 'bg-red-100 text-red-700'
-            }`}>
+            ? 'bg-green-100 text-green-700'
+            : 'bg-red-100 text-red-700'
+            }`}
+        >
           {message}
         </div>
       )}
@@ -185,26 +249,29 @@ export default function PaymentPage() {
       <Button
         onClick={handlePayment}
         disabled={loadingPayment}
-        className='w-full bg-orange-500 hover:bg-orange-600 text-white text-lg py-6 rounded-lg'>
+        className="w-full bg-orange-500 hover:bg-orange-600 text-white text-lg py-6 rounded-lg"
+      >
         {loadingPayment ? 'Processing...' : 'Make Payment'}
       </Button>
 
-      {/* Modal with Iframe (e.g., for Cryptomus) */}
+      {/* Modal with Iframe (for Cryptomus/NOWPayments) */}
       {checkoutURL && (
-        <div className='fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50'>
-          <div className='bg-white rounded-lg w-full max-w-lg h-[80vh] flex flex-col'>
-            <div className='flex justify-between items-center p-4 border-b'>
-              <h2 className='font-bold text-orange-500'>Complete Payment</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg w-full max-w-lg h-[80vh] flex flex-col">
+            <div className="flex justify-between items-center p-4 border-b">
+              <h2 className="font-bold text-orange-500">Complete Payment</h2>
               <button
                 onClick={() => setCheckoutURL(null)}
-                className='text-red-500 font-bold'>
+                className="text-red-500 font-bold"
+              >
                 ✕
               </button>
             </div>
             <iframe
               src={checkoutURL}
-              className='flex-1 w-full border-0'
-              title='Payment Checkout'></iframe>
+              className="flex-1 w-full border-0"
+              title="Payment Checkout"
+            ></iframe>
           </div>
         </div>
       )}
