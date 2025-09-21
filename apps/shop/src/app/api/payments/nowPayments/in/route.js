@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Transaction from "@/db/schema/Transaction";
 import mongoose from "mongoose";
+import connectDB from "@/config/db";
 
 const NOWPAYMENTS_API_KEY = process.env.NOWPAYMENTS_API_KEY;
 const IPN_CALLBACK_URL = process.env.NOWPAYMENTS_IPN_CALLBACK_URL;
@@ -18,6 +19,7 @@ async function safeJson(resp) {
 
 export async function POST(req) {
     try {
+        // await connectDB();
         const { userId, amount, pay_currency, description } = await req.json();
 
         if (!userId || !amount || !pay_currency) {
