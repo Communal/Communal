@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import Transaction from '@/models/Transaction';
+import Transaction from '@/db/schema/Transaction';
 import crypto from 'crypto';
 
 const IPN_SECRET = process.env.NOWPAYMENTS_IPN_SECRET;

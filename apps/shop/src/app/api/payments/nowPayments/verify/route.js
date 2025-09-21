@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import Transaction from '@/models/Transaction';
+import Transaction from '@/db/schema/Transaction';
 
 const API_KEY = process.env.NOWPAYMENTS_API_KEY;
 
