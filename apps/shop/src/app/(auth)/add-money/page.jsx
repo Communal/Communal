@@ -15,7 +15,7 @@ export default function PaymentPage() {
   const [amount, setAmount] = useState('');
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [message, setMessage] = useState('');
-  const [checkoutURL, setCheckoutURL] = useState(null);
+  // const [checkoutURL, setCheckoutURL] = useState(null);
 
   const { balance, loading, user } = useUserStore();
   const squad = useSquad();
@@ -120,7 +120,9 @@ export default function PaymentPage() {
         const checkout = data.invoice?.invoice_url || null;
         if (!checkout) throw new Error('No invoice URL returned');
 
-        setCheckoutURL(checkout);
+        // setCheckoutURL(checkout);
+        router.push(checkout);
+
         setMessage('');
         return;
       }
@@ -178,8 +180,8 @@ export default function PaymentPage() {
       {message && (
         <div
           className={`p-3 rounded-lg text-center ${message.toLowerCase().includes('success')
-              ? 'bg-green-100 text-green-700'
-              : 'bg-red-100 text-red-700'
+            ? 'bg-green-100 text-green-700'
+            : 'bg-red-100 text-red-700'
             }`}
         >
           {message}
@@ -196,7 +198,7 @@ export default function PaymentPage() {
       </Button>
 
       {/* Modal with Iframe (for Cryptomus/NOWPayments) */}
-      {checkoutURL && (
+      {/* {checkoutURL && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg w-full max-w-lg h-[80vh] flex flex-col">
             <div className="flex justify-between items-center p-4 border-b">
@@ -215,7 +217,7 @@ export default function PaymentPage() {
             ></iframe>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
