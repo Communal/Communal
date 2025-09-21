@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Select } from '@/components/Select';
 import Button from '@/components/Button';
 import { useUserStore } from '@/store/userStore';
@@ -17,9 +17,6 @@ export default function PaymentPage() {
   const [message, setMessage] = useState('');
   const [checkoutURL, setCheckoutURL] = useState(null);
 
-  const [payCurrency, setPayCurrency] = useState('');
-  const [nowPaymentsCurrencies, setNowPaymentsCurrencies] = useState([]); // <-- fetched list
-
   const { balance, loading, user } = useUserStore();
   const squad = useSquad();
 
@@ -28,42 +25,6 @@ export default function PaymentPage() {
     { value: 'cryptomus', label: 'Cryptomus - USDT' },
     { value: 'nowpayments', label: 'NOWPayments - Crypto' },
   ];
-
-  // 🔹 Fetch currencies dynamically from backend
-  useEffect(() => {
-    if (method === 'nowpayments') {
-      const fetchCurrencies = async () => {
-        try {
-          const res = await fetch('/api/payments/nowPayments/listCurrencies');
-          const data = await res.json();
-
-          console.log('NOWPayments currencies response:', data);
-
-          if (!res.ok) throw new Error(data.error || 'Failed to fetch currencies');
-
-          const list = data?.selectedCurrencies || [];
-          if (list.length === 0) {
-            setMessage('No currencies available from NOWPayments.');
-          }
-
-          const options = list.map((cur) => ({
-            value: cur,
-            label: cur,
-          }));
-
-          setNowPaymentsCurrencies(options);
-        } catch (err) {
-          console.error(err);
-          setMessage(err.message || 'Error loading currencies');
-          setNowPaymentsCurrencies([]);
-        }
-      };
-
-      fetchCurrencies();
-    }
-  }, [method]);
-
-
 
   const handlePayment = async () => {
     if (!method || !amount) {
@@ -142,19 +103,13 @@ export default function PaymentPage() {
       }
 
       if (method === 'nowpayments') {
-        // if (!payCurrency) {
-        //   setMessage('Please select a crypto currency.');
-        //   setLoadingPayment(false);
-        //   return;
-        // }
-
         const res = await fetch('/api/payments/nowPayments/in', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             userId: user._id,
             amount: parseFloat(amount),
-            pay_currency: "usd",
+            pay_currency: 'usd', // ✅ always pass fixed value
             description: 'Wallet in',
           }),
         });
@@ -204,20 +159,6 @@ export default function PaymentPage() {
         />
       </div>
 
-      {/* Crypto Currency (only for NOWPayments) */}
-      {/* {method === 'nowpayments' && (
-        <div>
-          <h2 className="mb-2 font-bold text-orange-500">Pay with Crypto:</h2>
-          <Select
-            options={nowPaymentsCurrencies}
-            value={payCurrency}
-            onChange={setPayCurrency}
-            placeholder="Select crypto currency"
-            className="bg-gray-200 rounded-lg"
-          />
-        </div>
-      )} */}
-
       {/* Amount */}
       <div>
         <h2 className="mb-2 font-bold text-orange-500">Enter Amount</h2>
@@ -237,8 +178,8 @@ export default function PaymentPage() {
       {message && (
         <div
           className={`p-3 rounded-lg text-center ${message.toLowerCase().includes('success')
-            ? 'bg-green-100 text-green-700'
-            : 'bg-red-100 text-red-700'
+              ? 'bg-green-100 text-green-700'
+              : 'bg-red-100 text-red-700'
             }`}
         >
           {message}
