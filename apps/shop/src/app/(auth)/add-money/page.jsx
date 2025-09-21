@@ -103,7 +103,7 @@ export default function PaymentPage() {
       }
 
       if (method === 'nowpayments') {
-        const res = await fetch('/api/payments/nowPayments/in', {
+        const res = await fetch('/api/payments/nowPayments/in/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
