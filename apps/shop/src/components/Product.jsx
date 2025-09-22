@@ -1,8 +1,12 @@
 "use client";
 import Button from "./Button";
 import { useCartStore } from "../store/cart";
+import usePaymentFlow from "@/hooks/usePaymentFlow";
+import { toast } from "sonner";
 
 const ProductCard = ({ product }) => {
+  const { startPayment, PaymentUI } = usePaymentFlow();
+
   const { _id, name, icon, info, price } = product;
 
   const addToCart = useCartStore((state) => state.addToCart);
@@ -13,14 +17,22 @@ const ProductCard = ({ product }) => {
 
   const handleAddToCart = () => {
     addToCart(product);
+    toast.success(`${name} added to cart`);
   };
 
   const handleRemoveFromCart = () => {
     removeFromCart(_id);
+    toast.info(`${name} removed from cart`);
   };
 
   const buyNow = () => {
-    alert("hello");
+    startPayment({
+      products: [product],
+      totalAmount: product.price,
+      callback: (data) => {
+        toast.success(`Payment successful! Ref: ${data.reference}`);
+      },
+    });
   };
 
   return (
@@ -49,6 +61,7 @@ const ProductCard = ({ product }) => {
 
       <div className="flex items-center justify-between px-3 py-3">
         <Button onClick={buyNow}>Buy Now</Button>
+        <PaymentUI />
         {isInCart ? (
           <Button onClick={handleRemoveFromCart}>Remove Item</Button>
         ) : (
