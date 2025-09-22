@@ -11,45 +11,27 @@ export default function CategoryPageClient({ companyId }) {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [loadingProducts, setLoadingProducts] = useState(false);
 
-  // Load categories with sessionStorage cache
+  // Load categories (no cache)
   useEffect(() => {
     if (!companyId) return;
 
-    const cached = sessionStorage.getItem(`categories-${companyId}`);
-    if (cached) {
-      setCategories(JSON.parse(cached));
-    } else {
-      fetch(`/api/category/${companyId}/categories`)
-        .then((res) => res.json())
-        .then((data) => {
-          setCategories(data);
-          sessionStorage.setItem(
-            `categories-${companyId}`,
-            JSON.stringify(data)
-          );
-        })
-        .catch((err) => console.error("Error fetching categories:", err));
-    }
+    fetch(`/api/category/${companyId}/categories`)
+      .then((res) => res.json())
+      .then((data) => {
+        setCategories(data);
+      })
+      .catch((err) => console.error("Error fetching categories:", err));
   }, [companyId]);
 
-  // Load products when a category is chosen
+  // Load products when a category is chosen (no cache)
   useEffect(() => {
     if (!selectedCategory || selectedCategory === "none") return;
-
-    const cacheKey = `products-${selectedCategory}`;
-    const cached = sessionStorage.getItem(cacheKey);
-
-    if (cached) {
-      setProducts(JSON.parse(cached));
-      return;
-    }
 
     setLoadingProducts(true);
     fetch(`/api/category/${selectedCategory}/products`)
       .then((res) => res.json())
       .then((data) => {
         setProducts(data);
-        sessionStorage.setItem(cacheKey, JSON.stringify(data));
       })
       .catch((err) => console.error("Error fetching products:", err))
       .finally(() => setLoadingProducts(false));
@@ -68,7 +50,6 @@ export default function CategoryPageClient({ companyId }) {
       <BackHome />
 
       <Select
-        // label="Category"
         value={selectedCategory}
         onChange={(val) => setSelectedCategory(val)}
         placeholder="Select a category"
