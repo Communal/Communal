@@ -3,6 +3,8 @@ import '../globals.css';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import ProtectedRoutes from "@/components/ProtectedRoutes";
+import { Toaster } from 'sonner';
+
 
 const dmSans = DM_Sans({
   weight: ['400', '500', '600', '700'],
@@ -20,7 +22,22 @@ export const metadata = {
 
 export default function AuthLayout({ children }) {
   return (
-    // <ProtectedRoutes>
+    <ProtectedRoutes>
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          classNames: {
+            toast:
+              '!rounded-[0.5rem] backdrop-blur-md drop-shadow-md top-[9vh] py-3 px-5 !border-0 flex flex-col justify-center',
+            title: '!text-white !text-center ml-5 !font-semibold',
+            description: '!text-white/80 !text-center',
+
+            success: '!bg-green-600',
+            error: '!bg-red-600',
+            warning: '!bg-yellow-600 text-black',
+          },
+        }}
+      />
       <div className={`min-h-screen flex flex-col bg-background pt-32 ${dmSans.variable}`}>
         <Header />
         <div className="flex flex-1">
@@ -43,6 +60,6 @@ export default function AuthLayout({ children }) {
         </div>
         <Footer />
       </div>
-    // </ProtectedRoutes>
+    </ProtectedRoutes>
   );
 }
