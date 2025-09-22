@@ -96,10 +96,9 @@ export const useUserStore = create(
             return;
           }
 
-          const u = await getUser(); // expects full user from API
+          const u = await getUser();
 
           if (!u) {
-            // fallback to decoded token if API fails
             const fallbackUser = {
               id: decoded.id,
               email: decoded.email,
