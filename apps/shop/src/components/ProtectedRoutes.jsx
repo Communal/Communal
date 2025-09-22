@@ -11,35 +11,34 @@ export default function ProtectedRoute({ children }) {
     // Get state and actions from Zustand store
     const { user, hasHydrated, fetchUser, tokenExpired } = useUserStore();
 
-    const publicRoutes = ["/login", "signup"];
+    const publicRoutes = ["/login", "/signup", "/forgot-password", "/reset-password"];
 
     useEffect(() => {
-        console.log("🔍 ProtectedRoute check starting...");
-        console.log("➡️ Current pathname:", pathname);
-        console.log("👤 User state:", user);
-        console.log("🔄 Has hydrated:", hasHydrated);
+        console.log("ProtectedRoute check starting...");
+        console.log("Current pathname:", pathname);
+        console.log("User state:", user);
+        console.log("Has hydrated:", hasHydrated);
 
-        // Wait for Zustand to rehydrate from localStorage
         if (!hasHydrated) {
-            console.log("⏳ Waiting for hydration...");
+            console.log("Waiting for hydration...");
             return;
         }
 
         const token = localStorage.getItem("token");
-        console.log("📦 LocalStorage token:", token);
+        console.log("LocalStorage token:", token);
 
         // Additional token validation
         let isTokenValid = true;
         if (token) {
             const decoded = decodeToken(token);
-            console.log("🔐 Decoded token:", decoded);
+            console.log("Decoded token:", decoded);
             isTokenValid = decoded && !decoded.expired;
         }
 
         // If no valid token and not on public route, redirect to login
         if (!token || !isTokenValid) {
             if (!publicRoutes.includes(pathname)) {
-                console.warn("❌ No valid token found, redirecting to /login");
+                console.warn("No valid token found, redirecting to /login");
                 router.replace("/login");
             }
             setLoading(false);
@@ -48,7 +47,7 @@ export default function ProtectedRoute({ children }) {
 
         // If token exists but user is not set, fetch user data
         if (token && !user) {
-            console.log("🔄 Token exists but user not loaded, fetching user...");
+            console.log("Token exists but user not loaded, fetching user...");
             fetchUser().finally(() => {
                 setLoading(false);
             });
@@ -57,7 +56,7 @@ export default function ProtectedRoute({ children }) {
 
         // If we have a user and token is valid, allow access
         if (user && token && isTokenValid) {
-            console.log("✅ User authenticated, allowing access");
+            console.log("User authenticated, allowing access");
             setLoading(false);
             return;
         }
