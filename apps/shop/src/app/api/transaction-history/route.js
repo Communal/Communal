@@ -9,7 +9,6 @@ export async function GET(req) {
   try {
     await dbConnect();
 
-    // 🔑 Extract JWT
     const authHeader = req.headers.get("authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ error: "No token provided" }, { status: 401 });
