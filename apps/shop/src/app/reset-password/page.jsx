@@ -1,19 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const token = searchParams.get("token");
+    const token = searchParams?.get("token");
 
     const [valid, setValid] = useState(false);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
     const [newPassword, setNewPassword] = useState("");
 
-    // Verify token on page load
+    // Verify token on mount
     useEffect(() => {
         const verify = async () => {
             try {
@@ -95,5 +95,23 @@ export default function ResetPasswordPage() {
                 </div>
             )}
         </div>
+    );
+}
+
+export default function ResetPasswordPage() {
+    return (
+        <Suspense
+            fallback={
+                <div className="flex flex-col h-screen items-center justify-center text-center">
+                    <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <h1 className="text-lg font-semibold text-orange-600">Loading reset page...</h1>
+                    <p className="mt-2 text-gray-500 text-sm">
+                        Please wait while we verify your reset token.
+                    </p>
+                </div>
+            }
+        >
+            <ResetPasswordContent />
+        </Suspense>
     );
 }
