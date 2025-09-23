@@ -67,7 +67,7 @@ export async function POST(req) {
                 order_id: reference,
                 order_description: description || `Deposit by user ${userId}`,
                 ipn_callback_url: IPN_CALLBACK_URL,
-                success_url: `${APP_URL}/wallet/success?ref=${reference}`,
+                success_url: `${APP_URL}/wallet/nowPayments?ref=${reference}`,
                 cancel_url: `${APP_URL}/wallet/cancel?ref=${reference}`,
             }),
         });
