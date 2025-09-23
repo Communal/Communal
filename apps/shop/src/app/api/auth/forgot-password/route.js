@@ -6,7 +6,7 @@ import User from "@/db/schema/User";
 import ResetPasswordEmail from "@/components/EmailTemplate";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const RESEND_EMAIL= process.env.RESEND_EMAIL;
+const RESEND_EMAIL = process.env.RESEND_EMAIL;
 
 export async function POST(req) {
     await connectDB();
@@ -21,8 +21,8 @@ export async function POST(req) {
         // Generate token
         const token = crypto.randomBytes(32).toString("hex");
         const expires = Date.now() + 1000 * 60 * 60; // 1 hour
-        user.resetToken = token;
-        user.resetTokenExpires = expires;
+        user.resetPasswordToken = token;
+        user.resetPasswordTokenExpires = expires;
         await user.save();
 
         // Reset link
