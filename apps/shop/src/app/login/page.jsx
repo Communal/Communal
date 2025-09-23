@@ -88,7 +88,7 @@ export default function LoginPage() {
               required
             />
             <Link
-              href="#"
+              href="/forgot-password"
               className="absolute right-0 top-full mt-2 text-foreground text-sm underline font-semibold"
             >
               Forgot password?
@@ -110,6 +110,15 @@ export default function LoginPage() {
             className="text-foreground underline font-semibold"
           >
             Sign up
+          </Link>
+        </p>
+        <p className="mt-2 text-center text-gray-700">
+          Forgotten your password?{" "}
+          <Link
+            href="/forgot-password"
+            className="text-foreground underline font-semibold"
+          >
+            Click here
           </Link>
         </p>
       </div>
