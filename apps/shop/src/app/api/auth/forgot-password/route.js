@@ -3,7 +3,7 @@ import { Resend } from "resend";
 import crypto from "crypto";
 import connectDB from "@/config/db";
 import User from "@/db/schema/User";
-import ResetPasswordEmail from "@/components/EmailTemplate"; // 👈 import template
+import ResetPasswordEmail from "@/components/EmailTemplate";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const RESEND_EMAIL= process.env.RESEND_EMAIL;
