@@ -134,7 +134,7 @@ export default function TransactionsPage() {
                   transactions.map((tx) => (
                     <tr key={tx._id} className="hover:bg-gray-50">
                       <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                        ₦{parseFloat(tx.amount?.$numberDecimal || tx.amount?.toString() || 0).toFixed(2)}
+                        ${parseFloat(tx.amount?.$numberDecimal || tx.amount?.toString() || 0).toFixed(2)}
                       </td>
                       <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                         {tx.type}

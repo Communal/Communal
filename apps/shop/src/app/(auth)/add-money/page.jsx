@@ -145,7 +145,7 @@ export default function PaymentPage() {
           Account Balance
         </div>
         <div className="bg-orange-500 text-white text-3xl font-bold p-4 rounded-b-lg">
-          {loading ? 'Loading...' : `₦${Number(balance || 0).toLocaleString()}`}
+          {loading ? 'Loading...' : `$${Number(balance || 0).toLocaleString()}`}
         </div>
       </div>
 
@@ -165,7 +165,7 @@ export default function PaymentPage() {
       <div>
         <h2 className="mb-2 font-bold text-orange-500">Enter Amount</h2>
         <div className="flex border-2 border-orange-500 rounded-lg overflow-hidden">
-          <span className="bg-white flex items-center px-3 text-orange-500 font-bold">₦</span>
+          <span className="bg-white flex items-center px-3 text-orange-500 font-bold">$</span>
           <input
             type="number"
             value={amount}

@@ -19,7 +19,7 @@ export async function POST(req) {
             );
         }
 
-        // normalize amount as number in NGN (e.g. 500 -> ₦500)
+        // normalize amount as number in NGN (e.g. 500 -> $500)
         const amountNumber = Number(amount);
         if (Number.isNaN(amountNumber) || amountNumber <= 0) {
             return NextResponse.json({ status: false, message: "Invalid amount" }, { status: 400 });

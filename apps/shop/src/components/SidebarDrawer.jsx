@@ -67,7 +67,7 @@ export default function SidebarDrawer() {
             </div>
             <div className="text-3xl font-bold px-5 py-1.5">
               {user
-                ? `₦ ${Number(user.balance || 0).toLocaleString()}`
+                ? `$ ${Number(user.balance || 0).toLocaleString()}`
                 : "Please sign in"}
             </div>
             <div className="flex items-center justify-between px-5 py-4">
