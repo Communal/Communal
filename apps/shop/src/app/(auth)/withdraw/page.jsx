@@ -38,7 +38,7 @@ export default function withdrawPage() {
           Account Balance
         </div>
         <div className="bg-orange-500 text-white text-3xl font-bold p-4 rounded-b-lg">
-          {loading ? 'Loading...' : `$${balance.toLocaleString()}`}
+          {loading ? 'Loading...' : `₦${balance.toLocaleString()}`}
         </div>
       </div>
 

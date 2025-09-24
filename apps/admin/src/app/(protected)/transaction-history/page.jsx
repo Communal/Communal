@@ -34,7 +34,7 @@ export default function AdminTransactionsPage() {
           Total Credited Amount:
         </p>
         <p className="text-2xl font-bold text-green-600">
-          ${data.totalAmount.toLocaleString()}
+          ₦{data.totalAmount.toLocaleString()}
         </p>
       </div>
 
@@ -56,7 +56,7 @@ export default function AdminTransactionsPage() {
                 <td className="p-2">{tx.user.name}</td>
                 <td className="p-2 break-words">{tx.user.email}</td>
                 <td className="p-2 font-medium text-green-600">
-                  ${tx.amount.toLocaleString()}
+                  ₦{tx.amount.toLocaleString()}
                 </td>
                 <td className="p-2">
                   {new Date(tx.date).toLocaleString()}

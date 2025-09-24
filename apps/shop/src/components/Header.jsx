@@ -26,7 +26,7 @@ export default function Header() {
         {/* Account Balance / Login Button */}
         {user ? (
           <div className="bg-background text-foreground px-2 py-1 rounded font-medium text-[13px] flex items-center">
-            Account Balance: $
+            Account Balance: ₦
             {Number(user.balance || 0).toLocaleString()}
           </div>
         ) : (

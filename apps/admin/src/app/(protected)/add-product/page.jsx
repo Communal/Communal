@@ -287,7 +287,7 @@ export default function ProductPage() {
                 >
                   <div>
                     <span className="font-semibold">
-                      {p.name} - ${p.price}
+                      {p.name} - ₦{p.price}
                       {p.company?.name ? (
                         <span className="text-sm opacity-80"> · {p.company.name}</span>
                       ) : null}
