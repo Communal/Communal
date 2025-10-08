@@ -5,7 +5,7 @@ import crypto from 'crypto';
 
 const IPN_KEY = process.env.NOWPAYMENTS_IPN_KEY;
 
-function verifySignature(body, signatureHeader, ipnSecret) {
+function verifySignature(body, signatureHeader, IPNKEY) {
     if (!signatureHeader) return false;
 
     // Recursively sort JSON keys
@@ -21,7 +21,7 @@ function verifySignature(body, signatureHeader, ipnSecret) {
 
     const sorted = sortObj(body);
     const json = JSON.stringify(sorted);
-    const hmac = crypto.createHmac('sha512', ipnSecret);
+    const hmac = crypto.createHmac('sha512', IPNKEY);
     hmac.update(json);
     const digest = hmac.digest('hex');
     return digest === signatureHeader;
@@ -39,7 +39,7 @@ export async function POST(req) {
         return NextResponse.json({ error: 'Bad Request' }, { status: 400 });
     }
 
-    const verified = verifySignature(body, signature, IPN_SECRET);
+    const verified = verifySignature(body, signature, IPN_KEY);
     // if (!verified) {
     //     console.error('Webhook: Signature mismatch');
     //     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
