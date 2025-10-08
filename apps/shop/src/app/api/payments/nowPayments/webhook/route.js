@@ -3,7 +3,7 @@ import Transaction from '@/db/schema/Transaction';
 import User from '@/db/schema/User';
 import crypto from 'crypto';
 
-const IPN_SECRET = process.env.NOWPAYMENTS_IPN_SECRET;
+const IPN_KEY = process.env.NOWPAYMENTS_IPN_KEY;
 
 function verifySignature(body, signatureHeader, ipnSecret) {
     if (!signatureHeader) return false;
