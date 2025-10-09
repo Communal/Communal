@@ -19,7 +19,7 @@ async function safeJson(resp) {
 
 export async function POST(req) {
     try {
-        // await connectDB();
+        await connectDB();
         const { userId, amount, pay_currency, description } = await req.json();
 
         if (!userId || !amount || !pay_currency) {
