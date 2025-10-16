@@ -12,13 +12,6 @@ const dmSans = DM_Sans({
   subsets: ['latin'],
 });
 
-export const metadata = {
-  title: "Communal Shop",
-  description: "Shop together, save together. Join our community and enjoy exclusive deals!",
-  other: {
-    cryptomus: "95a96952",
-  },
-};
 
 export default function AuthLayout({ children }) {
   return (
@@ -28,13 +21,12 @@ export default function AuthLayout({ children }) {
         toastOptions={{
           classNames: {
             toast:
-              '!rounded-[0.5rem] backdrop-blur-md drop-shadow-md top-[9vh] py-3 px-5 !border-0 flex flex-col justify-center',
+              '!bg-fgColor-dark/60 backdrop-blur-md !rounded-[0.5rem] !drop-shadow-xs top-[9vh] py-3 px-5 !border-0 flex flex-col justify-center',
             title: '!text-white !text-center ml-5 !font-semibold',
             description: '!text-white/80 !text-center',
-
-            success: '!bg-green-600',
-            error: '!bg-red-600',
-            warning: '!bg-yellow-600 text-black',
+            success: '!text-white',
+            error: '!text-white/80',
+            warning: '!text-white/70',
           },
         }}
       />
