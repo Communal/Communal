@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useUserStore } from "@/store/userStore";
 import SearchBar from "@/components/SearchBar";
 import BackHome from "@/components/Home";
 import PurchaseCard from "@/components/PurchaseCard";
+import { toast } from "sonner";
 
 function PurchaseSkeleton() {
   return (
@@ -18,6 +20,7 @@ function PurchaseSkeleton() {
 }
 
 export default function PurchaseHistory() {
+  const router = useRouter();
   const { user, hasHydrated, fetchUser } = useUserStore();
   const [purchases, setPurchases] = useState([]);
   const [status, setStatus] = useState("loading");
@@ -36,10 +39,14 @@ export default function PurchaseHistory() {
       const res = await fetch(`/api/purchase-history?${query.toString()}`);
       if (!res.ok) throw new Error("Failed to load purchases");
 
-      setPurchases(await res.json());
+      const data = await res.json();
+      setPurchases(Array.isArray(data) ? data : []);
       setStatus("ready");
+
+      toast.success("Purchase history loaded successfully!");
     } catch (err) {
       console.error("Purchase history error:", err);
+      toast.error("Unable to load your purchase history. Please try again.");
       setStatus("error");
     }
   };
@@ -47,33 +54,51 @@ export default function PurchaseHistory() {
   useEffect(() => {
     const init = async () => {
       if (!hasHydrated) return;
+
       if (!user?._id && localStorage.getItem("token")) {
         await fetchUser();
       }
+
       if (user?._id) {
         loadPurchases();
       }
     };
+
     init();
   }, [user, hasHydrated, fetchUser]);
 
   const handleSearch = () => {
+    if (!searchTerm.trim()) {
+      toast.warning("Enter a search term first.");
+      return;
+    }
     loadPurchases(searchTerm);
+  };
+
+  // NAVIGATE to detail page instead of opening modal
+  const handleViewDetails = (purchase) => {
+    // validate productId before navigating
+    const rawPid = purchase?.productId || purchase?.product || purchase?.product_id;
+    const pid =
+      typeof rawPid === "object" && rawPid !== null
+        ? rawPid._id?.toString?.() || rawPid.toString?.()
+        : rawPid?.toString?.();
+
+    if (!pid || pid === "null") {
+      toast.warning("This purchase has no linked product record.");
+      return;
+    }
+
+    router.push(`/purchase/${pid}`);
+
   };
 
   return (
     <div className="w-full p-1">
-      <div>
-        <BackHome />
-      </div>
+      <BackHome />
       <h2 className="text-2xl text-center font-bold mb-4">Purchase History</h2>
 
-      {/* Search bar */}
-      <SearchBar
-        search={searchTerm}
-        setSearch={setSearchTerm}
-        onSubmit={handleSearch}
-      />
+      <SearchBar search={searchTerm} setSearch={setSearchTerm} onSubmit={handleSearch} />
 
       <div className="mt-6 space-y-4">
         {status === "loading" ? (
@@ -83,12 +108,16 @@ export default function PurchaseHistory() {
             <PurchaseSkeleton />
           </>
         ) : status === "error" ? (
-          <p className="text-red-500">Please login to view history</p>
+          <p className="text-red-500 text-center">Please login to view history</p>
         ) : purchases.length === 0 ? (
-          <p>No purchases found</p>
+          <p className="text-center text-gray-500">No purchases found</p>
         ) : (
           purchases.map((purchase) => (
-            <PurchaseCard key={purchase._id} purchase={purchase} />
+            <PurchaseCard
+              key={purchase._id}
+              purchase={purchase}
+              onViewDetails={() => handleViewDetails(purchase)}
+            />
           ))
         )}
       </div>
