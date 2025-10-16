@@ -10,7 +10,16 @@ const TransactionSchema = new mongoose.Schema(
     },
     reference: { type: String, required: true, unique: true, index: true },
     amount: { type: mongoose.Schema.Types.Decimal128, required: true },
-    type: { type: String, enum: ["CREDIT", "DEBIT"], required: true, index: true },
+    usdAmount: {
+      type: mongoose.Schema.Types.Decimal128,
+      required: false,
+    },
+    type: {
+      type: String,
+      enum: ["CREDIT", "DEBIT"],
+      required: true,
+      index: true,
+    },
     status: {
       type: String,
       enum: ["PENDING", "SUCCESS", "FAILED"],
