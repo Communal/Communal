@@ -37,7 +37,6 @@ export default function usePaymentFlow() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Payment failed");
 
-            // ✅ success
             clearCart(); // remove items from cart
             if (onSuccess) onSuccess(data);
             setModalOpen(false);
