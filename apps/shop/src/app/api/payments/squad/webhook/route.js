@@ -44,11 +44,14 @@ export async function POST(req) {
       if (Body.transaction_status.toLowerCase() === "success") {
         const user = await User.findOne({ email: Body.email });
         if (user) {
-          const currentBalance = Number(user.balance) ?? 0;
-          const newBalance = currentBalance + Number(Body.amount) / 100;
+          const currentBalance = Number(user.balance) || 0;
+          const usdAmount = Number(transaction.usdAmount || 0);
+
+          // Credit in USD instead of NGN
+          const newBalance = currentBalance + usdAmount;
 
           user.balance = mongoose.Types.Decimal128.fromString(
-            newBalance.toString()
+            newBalance.toFixed(2)
           );
           await user.save();
         }
