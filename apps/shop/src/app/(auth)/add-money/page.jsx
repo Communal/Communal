@@ -46,11 +46,12 @@ export default function PaymentPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             userId: user._id,
-            amount: parseFloat(amount),
+            usdAmount: parseFloat(amount),
             email: user.email,
             customer_name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
             description: 'Wallet in',
           }),
+
         });
 
         const json = await res.json();
@@ -155,10 +156,24 @@ export default function PaymentPage() {
         <Select
           options={paymentOptions}
           value={method}
-          onChange={(value) => setMethod(value)}
+          onChange={(value) => {
+            setMethod(value);
+            // if (value === 'squad') {
+            //   setMessage('Note: Since goods are priced in USD, the amount will be automatically converted to Naira for this payment.');
+            // } else {
+            //   setMessage('');
+            // }
+          }}
           placeholder="Click here to select payment method"
           className="bg-gray-200 rounded-lg"
         />
+
+        {/* Conversion Notice */}
+        {method === 'squad' && (
+          <div className="mt-3 p-3 rounded-md bg-yellow-100 text-yellow-800 text-sm border border-yellow-300">
+            💡 <span className="font-semibold">Heads up:</span> The payment will be processed in <span className="font-bold">Naira (₦)</span>, converted automatically from the USD amount.
+          </div>
+        )}
       </div>
 
       {/* Amount */}
