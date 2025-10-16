@@ -15,7 +15,7 @@ export default function TransactionsPage() {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const token = localStorage.getItem("token"); // 🔹 Get JWT from localStorage
+        const token = localStorage.getItem("token"); //
         if (!token) {
           setError("You must be logged in to view transactions.");
           return;
@@ -28,7 +28,7 @@ export default function TransactionsPage() {
 
         const res = await fetch(`/api/transaction-history?${params.toString()}`, {
           headers: {
-            Authorization: `Bearer ${token}`, // 🔹 Send token to backend
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -134,7 +134,9 @@ export default function TransactionsPage() {
                   transactions.map((tx) => (
                     <tr key={tx._id} className="hover:bg-gray-50">
                       <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                        ₦{parseFloat(tx.amount?.$numberDecimal || tx.amount?.toString() || 0).toFixed(2)}
+                        {tx.usdAmount
+                          ? `$${parseFloat(tx.usdAmount?.$numberDecimal || tx.usdAmount?.toString() || 0).toFixed(2)}`
+                          : `$${parseFloat(tx.amount?.$numberDecimal || tx.amount?.toString() || 0).toFixed(2)}`}
                       </td>
                       <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                         {tx.type}
@@ -142,8 +144,8 @@ export default function TransactionsPage() {
                       <td className="px-3 py-2 whitespace-nowrap text-sm">
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${tx.status === "SUCCESS"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
                             }`}
                         >
                           {tx.status}
