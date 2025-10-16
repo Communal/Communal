@@ -27,7 +27,7 @@ export async function GET(req) {
       return NextResponse.json({ error: "Invalid userId" }, { status: 400 });
     }
 
-    // 🔍 Filters from query params
+    // Filters from query params
     const { searchParams } = new URL(req.url);
     const filter = { userId: new mongoose.Types.ObjectId(userId) };
 
