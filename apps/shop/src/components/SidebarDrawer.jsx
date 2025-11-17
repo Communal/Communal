@@ -82,15 +82,6 @@ export default function SidebarDrawer() {
                       Add Money
                     </Button>
                   </Link>
-                  <Link href="/withdraw" onClick={() => setOpen(false)}>
-                    <Button
-                      size="sm"
-                      className="text-foreground bg-background"
-                      style={{ boxShadow: "0 2px 4px 0 #e97a00" }}
-                    >
-                      Withdraw
-                    </Button>
-                  </Link>
                 </>
               ) : (
                 <>
