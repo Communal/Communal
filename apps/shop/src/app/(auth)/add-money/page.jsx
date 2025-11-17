@@ -22,7 +22,7 @@ export default function PaymentPage() {
 
   const paymentOptions = [
     { value: 'squad', label: 'Squad - Card, Bank Transfer' },
-    { value: 'cryptomus', label: 'Cryptomus - USDT' },
+    // { value: 'cryptomus', label: 'Cryptomus - USDT' },
     { value: 'nowpayments', label: 'NOWPayments - Crypto' },
   ];
 
