@@ -50,7 +50,7 @@ export async function POST(req) {
     }
 
     // const rate = await getUsdToNgnRate();
-    const rate = 1600;
+    const rate = 1500;
     const amountNgn = usdValue * rate;
 
     // Generate idempotent reference
