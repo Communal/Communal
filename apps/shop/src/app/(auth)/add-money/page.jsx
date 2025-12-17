@@ -222,7 +222,6 @@ export default function PaymentPage() {
                 onClick={() => setCheckoutURL(null)}
                 className="text-red-500 font-bold"
               >
-                ✕
               </button>
             </div>
             <iframe
