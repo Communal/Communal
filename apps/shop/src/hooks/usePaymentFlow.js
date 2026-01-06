@@ -13,6 +13,7 @@ export default function usePaymentFlow() {
     const clearCart = useCartStore((state) => state.clearCart);
 
     const startPayment = ({ products, totalAmount, callback }) => {
+        setError(null); // Reset error when opening fresh
         setProductIds(products.map((p) => p._id));
         setAmount(totalAmount);
         setOnSuccess(() => callback);
@@ -20,6 +21,7 @@ export default function usePaymentFlow() {
     };
 
     const handleConfirm = async (password) => {
+        setError(null); // 1. Clear previous errors before new attempt
         try {
             const res = await fetch("/api/wallet/withdraw", {
                 method: "POST",
@@ -35,14 +37,16 @@ export default function usePaymentFlow() {
             });
 
             const data = await res.json();
+
+            // The backend returns { error: "Invalid password" } or { error: "Insufficient funds" }
             if (!res.ok) throw new Error(data.error || "Payment failed");
 
-            clearCart(); // remove items from cart
+            clearCart();
             if (onSuccess) onSuccess(data);
             setModalOpen(false);
             return true;
         } catch (err) {
-            setError(err.message);
+            setError(err.message); // 2. This now gets passed to the modal
             return false;
         }
     };
@@ -58,6 +62,7 @@ export default function usePaymentFlow() {
                 amount={amount}
                 onConfirm={handleConfirm}
                 onCancel={handleCancel}
+                error={error}
             />
         );
 

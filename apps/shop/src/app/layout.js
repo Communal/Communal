@@ -40,7 +40,8 @@ export default function RootLayout({ children }) {
           toastOptions={{
             classNames: {
               toast:
-                '!bg-fgColor-dark/60 backdrop-blur-md !rounded-[0.5rem] !drop-shadow-xs top-[9vh] py-3 px-5 !border-0 flex flex-col justify-center',
+                // CHANGED: used '!bg-black/80' instead of the missing class
+                '!bg-black/80 backdrop-blur-md !rounded-[0.5rem] !drop-shadow-xs top-[9vh] py-3 px-5 !border-0 flex flex-col justify-center',
               title: '!text-white !text-center ml-5 !font-semibold',
               description: '!text-white/80 !text-center',
               success: '!text-white',

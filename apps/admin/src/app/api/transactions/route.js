@@ -11,6 +11,9 @@ export async function GET(req) {
         const limit = parseInt(searchParams.get("limit")) || 10;
         const skip = (page - 1) * limit;
 
+        // The exchange rate used to multiply the money flow
+        const EXCHANGE_RATE = 1500;
+
         // Only successful wallet credits
         const query = {
             type: "CREDIT",
@@ -34,17 +37,20 @@ export async function GET(req) {
         ]);
 
         return NextResponse.json({
+            // 1. DIVIDE THE TOTAL AGGREGATED AMOUNT
             totalAmount:
                 totalAmount.length > 0
-                    ? parseFloat(totalAmount[0].total.toString())
+                    ? parseFloat(totalAmount[0].total.toString()) / EXCHANGE_RATE
                     : 0,
+
+            // 2. DIVIDE INDIVIDUAL TRANSACTION AMOUNTS
             transactions: transactions.map((tx) => ({
                 id: tx._id,
                 user: {
-                    name: `${tx.userId.firstName} ${tx.userId.lastName}`,
-                    email: tx.userId.email,
+                    name: tx.userId ? `${tx.userId.firstName} ${tx.userId.lastName}` : "Unknown User", // Added safety check
+                    email: tx.userId ? tx.userId.email : "N/A",
                 },
-                amount: parseFloat(tx.amount.toString()),
+                amount: parseFloat(tx.amount.toString()) / EXCHANGE_RATE,
                 date: tx.createdAt,
             })),
             pagination: {
