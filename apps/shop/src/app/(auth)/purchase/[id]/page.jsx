@@ -56,7 +56,7 @@ export default function PurchaseDetailPage() {
                 <div className="p-4 bg-red-50 text-red-700 rounded">Product not found.</div>
             ) : (
                 <div className="bg-white shadow rounded-lg p-6 space-y-4">
-                    <h2 className="text-xl font-semibold">{product.name}</h2>
+                    <h2 className="text-xl font-semibold break-words">{product.name}</h2>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -74,26 +74,30 @@ export default function PurchaseDetailPage() {
                             <p>{product.isSold ? "Sold" : "Available"}</p>
                         </div>
 
-                        <div>
+                        <div className="min-w-0"> {/* min-w-0 prevents grid blowout */}
                             <p className="text-sm text-gray-600 mb-2">Description</p>
-                            <p className="whitespace-pre-line">{product.info || "No description"}</p>
+                            {/* Added break-words to prevent overflow from long strings */}
+                            <p className="whitespace-pre-line break-words">{product.info || "No description"}</p>
 
                             {product.data && (
                                 <div className="mt-4">
-                                    {/* If product.data is an image URL show it, otherwise just show text */}
                                     {typeof product.data === "string" && (product.data.startsWith("http") || product.data.startsWith("data:")) ? (
-                                        // image
-                                        <img src={product.data} alt={product.name} className="max-h-64 object-cover rounded" />
+                                        // Added w-full to constrain image width
+                                        <img
+                                            src={product.data}
+                                            alt={product.name}
+                                            className="max-h-64 w-full object-cover rounded"
+                                        />
                                     ) : (
-                                        <pre className="text-sm text-gray-700 mt-2">{product.data}</pre>
+                                        // CRITICAL FIX: whitespace-pre-wrap and break-words forces the pre tag to wrap text
+                                        <pre className="text-sm text-gray-700 mt-2 whitespace-pre-wrap break-words font-mono bg-gray-50 p-2 rounded">
+                                            {product.data}
+                                        </pre>
                                     )}
                                 </div>
                             )}
                         </div>
                     </div>
-
-                    {/* Raw JSON for debugging (optional) */}
-                    {/* <pre className="text-xs text-gray-500">{JSON.stringify(product, null, 2)}</pre> */}
                 </div>
             )}
         </div>
